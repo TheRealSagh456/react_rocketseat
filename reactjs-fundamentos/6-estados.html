@@ -17,10 +17,23 @@
 
     <script type="text/babel">
 
+        function Counter() {
+            const [counter, setCounter] = React.useState(0)
+
+            return (
+                <>
+                    <p>Contador: {counter}</p>
+                    <button onClick={() => setCounter(100)}>Atualizar</button>
+                    <p><button onClick={() => setCounter((prevValue) => prevValue + 1)}>Incrementar</button></p>
+                    <p><button onClick={() => setCounter((prevValue) => prevValue - 1)}>Decrementar</button></p>
+                </>
+            )
+        }
+
         function App() {
             return (
                 <main class='p-3'>
-                    ...
+                    <Counter />
                 </main>
             )
         }
