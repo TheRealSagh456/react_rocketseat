@@ -154,6 +154,35 @@
             ]
         ]
 
+        const CalculatorContext = React.createContext();
+
+        function CalculatorProvider({ children }) {
+            const [history, setHistory] = React.useState([])
+            const historyStorageKey = 'history'
+
+            React.useEffect(() => {
+                const savedHistory = localStorage.getItem(historyStorageKey)
+                setHistory(JSON.parse(savedHistory) || [])
+            }
+                , [])
+
+            function updateHistory(operation, parsedResult) {
+                setHistory((prev) => {
+                    const updatedHistory = [...prev, `${operation} = ${parsedResult} `]
+
+                    localStorage.setItem(historyStorageKey, JSON.stringify(updatedHistory))
+
+                    return updatedHistory
+                })
+            }
+
+            return (
+                <CalculatorContext.Provider value={{ history, updateHistory }}>
+                    {children}
+                </CalculatorContext.Provider>
+            )
+        }
+
         function CalculatorDisplay({ operation, result }) {
             return (
 
@@ -165,21 +194,21 @@
                     <Text
                         as='div'
                         variant='muted'
-                        className='flex items-center justify-end'
+                        className='flex items-center justify-end h-7'
                     >
 
-                        {operation}
+                        {result && operation}
 
                     </Text>
 
                     <div className={`
-                    flex items-center justify-between
+                    flex items-center justify-between h-9
                     
                 `}>
 
                         <Text variant='muted'> = </Text>
 
-                        <Text variant='blast'>{result}</Text>
+                        <Text variant='blast'>{operation}</Text>
 
                     </div>
 
@@ -187,9 +216,100 @@
                 </div>)
         }
 
+        function useCalculator() {
+            const [operation, setOperation] = React.useState('0')
+            const [result, setResult] = React.useState('')
+            const { updateHistory } = React.useContext(CalculatorContext)
+
+            function doOperation(input) {
+
+                if (operation === '0' && (input === 'C' || input === 'CE' || input === '=')) {
+                    return
+                }
+
+                if (input === "=") {
+                    const operationResult = eval(operation.replace(/,/g, '.'))
+                    const parsedResult = operationResult.toString().replace(/\./g, ',')
+                    setResult(`${parsedResult}`)
+                    updateHistory(operation, parsedResult)
+                    setOperation(parsedResult)
+                    return;
+                }
+
+                if (operation === '0' && !isNaN(input)) {
+                    setOperation(input)
+                    return
+                }
+
+                if (input === ",") {
+
+                    const operadores = ["+", "-", "/", "*"]
+
+                    let ultimoNumero = ''
+
+                    for (let i = operation.length - 1; i >= 0; i--) {
+                        if (operadores.includes(operation[i])) {
+                            break
+                        }
+                        ultimoNumero = operation[i] + ultimoNumero
+                    }
+
+                    if (ultimoNumero.includes(',')) {
+                        return
+                    }
+
+                    setOperation(`${operation},`)
+
+                    if (result) {
+                        setOperation(`${result},`)
+                        setResult("")
+                        return;
+                    }
+
+                    if (!operation.endsWith(',')) {
+                        setOperation(`${operation},`)
+                        return;
+                    }
+
+                    if (operation.includes(',')) {
+                        setOperation(`${operation}`)
+                    }
+
+                }
+
+                if (input === 'C') {
+                    setOperation("")
+                    setResult("")
+                    return;
+                }
+
+                if (input === "CE") {
+                    setResult('')
+                    setOperation(operation.slice(0, -1));
+                    return;
+                }
+                if (result) {
+                    setOperation(isNaN(input) ? `${result}${input}` : input)
+                    setResult("")
+                    return;
+                }
+
+                setOperation(`${operation}${input}`)
+
+            }
+
+            return {
+                operation, result, doOperation
+            }
+        }
+
         function Calculator() {
+
+            const { operation, result, doOperation } = useCalculator()
+
+
             function handleInputClick(input) {
-                console.log(input)
+                doOperation(input);
             }
 
             return (
@@ -199,7 +319,7 @@
                   `}
                 >
 
-                    <CalculatorDisplay operation="1 + 1" result="2" />
+                    <CalculatorDisplay operation={operation} result={result} />
 
                     <div className='flex flex-col gap-3'>
                         {buttons.map((row, index) => (
@@ -208,7 +328,7 @@
                                     <Button key={button.input}
                                         className={button.className || 'w-16 h-16'}
                                         variant={button.variant}
-                                        onClick={handleInputClick(button.input)}>
+                                        onClick={() => handleInputClick(button.input)}>
 
                                         {button.input}
 
@@ -224,15 +344,20 @@
         }
 
         function OperationHistory() {
+            const { history } = React.useContext(CalculatorContext)
             return (
                 <Card className='w-full py-10 px-8'>
                     <Text as='h1' variant='heading' className='mb-4'>Histórico de Operações</Text>
-                    <ul>
-                        <Text as='li'>1 + 1 = 2</Text>
-                        <Text as='li'>2 + 3 + 1 = 6</Text>
-                        <Text as='li'>2 + 3 = 5</Text>
 
-                    </ul>
+                    {history.length > 0 ? (
+                        <ul>
+                            {history.map((value, index) => <Text key={`item-${index}`} as='li'>{value}</Text>)}
+                        </ul>) : (
+                        <Text as="p" variant="muted">Nenhuma operação realizada.</Text>
+                    )
+                    }
+
+
                 </Card>
             )
         }
@@ -246,9 +371,10 @@
                     items-center sm:items-stretch
                     gap-2
                     `}>
-
-                    <Calculator />
-                    <OperationHistory />
+                    <CalculatorProvider>
+                        <Calculator />
+                        <OperationHistory />
+                    </CalculatorProvider>
                 </main>
             )
         }

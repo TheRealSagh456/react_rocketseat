@@ -18,42 +18,9 @@
 
         function Counter() {
             const [counter, setCounter] = React.useState(0)
-            const [name, setName] = React.useState('')
-
-            React.useEffect(() => {
-                console.log("Componente montado")
-
-                return () => {
-                    console.log("Componente desmontado")
-                }
-            }, [])
-
-            React.useEffect(() => {
-                if (counter > 0) {
-                    console.log(`Contador atualizado: ${counter}`)
-                }
-            }, [counter])
-
-            React.useEffect(() => {
-                if (name.length > 0) {
-                    console.log(`Nome atualizado: ${name}`)
-                }
-            }, [name])
 
             return (
-
                 <>
-                    <div>
-
-
-                        <label>
-
-                            <input onChange={(e) => setName(e.target.value)} />
-
-                        </label>
-
-                    </div>
-
                     <p>Contador: {counter}</p>
                     <button onClick={() => setCounter(100)}>Atualizar</button>
                     <p><button onClick={() => setCounter((prevValue) => prevValue + 1)}>Incrementar</button></p>
@@ -63,14 +30,9 @@
         }
 
         function App() {
-            const [show, setShow] = React.useState(true)
-
             return (
-
-                <main className='p-3'>
-                    <button onClick={() => setShow(!show)}>Mostrar/Ocultar Contagem</button>
-                    <hr />
-                    {show && <Counter />}
+                <main class='p-3'>
+                    <Counter />
                 </main>
             )
         }
