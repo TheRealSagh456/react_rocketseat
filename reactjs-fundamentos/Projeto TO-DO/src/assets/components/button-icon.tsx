@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import Icon from "./icon";
+import Skeleton from "./skeleton";
 
 export const buttonIconVariants = cva(`
     inline-flex items-center justify-center 
@@ -7,8 +8,9 @@ export const buttonIconVariants = cva(`
     `, {
         variants: {
             variant: {
+                none: '',
                 primary: "bg-green-base hover:bg-green-dark",
-                secondary: "bg-pink-base hover:bg-pink-dark",
+                secondary: "bg-gray-200 hover:bg-pink-dark",
                 tertiary: "bg-transparent hover:bg-gray-200"
             },
             size: {
@@ -28,6 +30,7 @@ export const buttonIconVariants = cva(`
 export const buttonIconIconVariants = cva("transition", {
     variants: {
         variant: {
+            none: '',
             primary: "fill-white",
             secondary: 'fill-pink-base group-hover:fill-white',
             tertiary: 'fill-gray-300 group-hover:fill-gray-400'
@@ -35,12 +38,17 @@ export const buttonIconIconVariants = cva("transition", {
         size: {
             sm: "w-4 h-4"
         }
+    },
+    defaultVariants: {
+        variant: "primary",
+        size: "sm"
     }
 })
 
 interface ButtonIconProps extends VariantProps<typeof buttonIconVariants>, 
 Omit<React.ComponentProps<"button">, "size" | "disabled"> {
     icon: React.ComponentProps<typeof Icon>["svg"]
+    loading?: boolean
 }
 
 export default function ButtonIcon({
@@ -48,10 +56,29 @@ export default function ButtonIcon({
     size,
     disabled,
     className,
-    icon: IconComponent,
+    icon,
+    loading,
     ...props
-}) {
-    return <button>
-        <Icon svg={}/>
+}: ButtonIconProps) {
+
+    if(loading) {
+        return <Skeleton
+        rounded="sm"
+        className={buttonIconVariants({
+            variant: 'none',
+            size,
+            className,
+            disabled: true
+        })}/>
+    }
+
+    return <button className={buttonIconVariants({
+        variant,
+        size,
+        disabled,
+        className,
+    })}
+    {...props}>
+        <Icon svg={icon} className={buttonIconIconVariants({variant, size})}/>
     </button>
 }
