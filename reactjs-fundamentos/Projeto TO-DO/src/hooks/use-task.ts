@@ -1,8 +1,13 @@
 import { useLocalStorage } from "usehooks-ts";
 import { TASKS_KEY, TaskState, type Task } from "../models/task";
+import { delay } from "../helpers/utils";
+import React from "react";
 
 export default function useTask() {
     const [tasks, setTasks] = useLocalStorage<Task[]>(TASKS_KEY, [])
+    const [updatingTask, setUpdatingTask] = React.useState(false)
+    const [deletingTask, setDeletingTask] = React.useState(false)
+
 
     function prepareTask() {
         setTasks([...tasks, {
@@ -12,7 +17,11 @@ export default function useTask() {
         }])
     }
 
-    function updateTask(id:string, payload: {title: Task['title']}) {
+    async function updateTask(id:string, payload: {title: Task['title']}) {
+        setUpdatingTask(true)
+
+        await delay(1000)
+
         setTasks(
             tasks.map((task) => task.id === id
              ? 
@@ -20,6 +29,8 @@ export default function useTask() {
              : 
              task)
         )
+
+        setUpdatingTask(false)
     }
 
     function changeTaskStatus(id: string, concluded: boolean) {
@@ -32,15 +43,23 @@ export default function useTask() {
         )
     }
 
-    function deleteTask (id:string) {
+    async function deleteTask (id:string) {
+        setDeletingTask(true)
+        
+        await delay(1000)
+
         setTasks(tasks.filter((task) => task.id !== id))
+        
+        setDeletingTask(false)
     }
 
     return {
         prepareTask,
         updateTask,
         changeTaskStatus,
-        deleteTask
+        deleteTask,
+        updatingTask,
+        deletingTask
     }
 
 }

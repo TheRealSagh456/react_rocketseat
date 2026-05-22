@@ -66,10 +66,10 @@ export default function InputCheckbox({
     ...props
 }: InputCheckboxProps) {
     if(loading) {
-        return <Skeleton className={checkBoxVariants({size, variant: 'none'})}/>
+        return <Skeleton className={checkBoxVariants({size, variant: 'none', disabled})}/>
     }
     return <label className={checkBoxWrapperVariants({className})}>
-        <input type="checkbox" className={checkBoxVariants({variant,size,disabled})} {...props}/>
+        <input type="checkbox" className={checkBoxVariants({variant,size, disabled})} {...props}/>
         <Icon svg={CheckIcon} className={checkBoxIconVariants({size})}/>
     </label>
 }

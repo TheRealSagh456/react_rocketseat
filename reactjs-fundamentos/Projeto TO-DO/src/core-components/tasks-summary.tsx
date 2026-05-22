@@ -4,7 +4,7 @@ import useTasks from "../hooks/use-tasks";
 
 
 export default function TasksSummary() {
-const { tasksCount, concludedTasksCount } = useTasks()
+const { tasksCount, concludedTasksCount, isLoadingTasks} = useTasks()
 
     return <>
     
@@ -12,7 +12,7 @@ const { tasksCount, concludedTasksCount } = useTasks()
         <Text variant={"body-sm-bold"} className="text-gray-300!">
             Tarefas Criadas
         </Text>
-        <Badge variant={'secondary'}>
+        <Badge variant={'secondary'} loading={isLoadingTasks}>
             {tasksCount}
         </Badge>
     </div>
@@ -21,7 +21,7 @@ const { tasksCount, concludedTasksCount } = useTasks()
         <Text variant={"body-sm-bold"} className="text-gray-300!">
             Concluídas
         </Text>
-        <Badge variant={'primary'}>
+        <Badge variant={'primary'} loading={isLoadingTasks}>
             {concludedTasksCount} de {tasksCount}
         </Badge>
     </div>

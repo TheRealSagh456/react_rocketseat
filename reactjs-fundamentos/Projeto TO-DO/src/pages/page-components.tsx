@@ -20,6 +20,7 @@ export default function PageComponents() {
   return(
 
     <Container>
+  
   <div className="grid gap-10">
     <div className="flex flex-col gap-2">
       <Text variant={"body-sm-bold"} className="text-pink-base">
@@ -48,8 +49,9 @@ export default function PageComponents() {
     <Badge variant="primary">2 de 5</Badge>
     </div>
 
-    <div>
+    <div className="flex gap-4">
       <Button variant={"primary"} icon={PlusIcon}>Nova tarefa</Button>
+      <Button variant={"primary"} icon={PlusIcon} handling>Criando...</Button>  
     </div>
 
     <div className="flex gap-1">
@@ -57,6 +59,7 @@ export default function PageComponents() {
     <ButtonIcon icon={TrashIcon} />
     <ButtonIcon icon={TrashIcon} variant='secondary'/>
     <ButtonIcon icon={TrashIcon} variant='tertiary'/>
+    <ButtonIcon icon={TrashIcon} variant='tertiary' handling/>
     </div>
   
     <div>
@@ -64,7 +67,7 @@ export default function PageComponents() {
     </div>
 
     <div className="flex flex-1 gap-3">
-      <InputCheckbox loading/>
+      <InputCheckbox loading disabled={true}/>
       <InputCheckbox />
     </div>
 
