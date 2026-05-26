@@ -4,7 +4,7 @@ import React from "react";
 export const textVariants = cva("font-sans", {
     variants: {
         variant: {
-            "title-lg": "text-[32px] leading-6 font-bold text-white",//branco bold
+            "title-lg": "text-[23px] leading-6 font-bold text-white",//branco bold
             "title-md": "text-[16px] leading-6 font-bold text-gray-200",//gray-200 bold
             "title-sm": "text-[14px] leading-5 font-bold text-gray-300",//gray-300 bold
             "text-md": "text-[16px] leading-6 font-normal text-gray-200",//gray-200 regular
