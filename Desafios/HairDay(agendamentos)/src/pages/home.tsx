@@ -90,24 +90,44 @@ export default function HomePage() {
                         Data
                     </Text>
                     
-                    <InputText containerClassName="scale-85 w-0" type="date" icon={calendar} onChange={
-                        (e) => (setSelectedDate(e.target.value))
-                    }/>
+                    <InputText containerClassName="scale-85 w-0" className="w-100" type="date" icon={calendar} onChange=
+                        {
+                            (e) => {
+                                (setSelectedDate(e.target.value))
+                                setSelectedHour("")
+                            }
+                        }
+                    />
                 
                 </div>
 
                 {/* Horarios */}
                 <div>
                   
-                  <Text variant="title-md">Horários</Text>
+                    <Text variant="title-md">
+                        Horários
+                    </Text>
 
                     {/* Manhã */}
                     <div className="mt-2 mb-4">
                         <Text variant="text-md">Manhã</Text>
 
                         <div className="flex flex-wrap gap-2 mt-1">
-                            {morningHours.map((hour) => <TimeButton key={hour} selected={selectedHour === hour} onClick={
-                                () => setSelectedHour(hour)}>{hour}</TimeButton>)
+                            {
+                                morningHours.map((hour) => {
+                                    
+                                        const isReserved = horariosOcupados.some(
+                                        (item) => item.data === selectedDate && item.horario === hour
+                                    )
+                                    
+                                    return (
+                                <TimeButton key={hour} selected={selectedHour === hour} disabled={isReserved} onClick=
+                                    {
+                                        () => setSelectedHour(hour)
+                                    }
+                                >
+                                    {hour}
+                                </TimeButton>)})
                             }
                         </div>
                   
@@ -116,11 +136,27 @@ export default function HomePage() {
                     {/* Tarde */}
                     <div className="mt-2 mb-4">
                         
-                        <Text variant="text-md">Tarde</Text>
+                        <Text variant="text-md">
+                            Tarde
+                        </Text>
                         
                         <div className="flex flex-wrap gap-2 mt-1 mr-10">
-                            {afternoonHours.map((hour) => <TimeButton key={hour} selected={selectedHour === hour} onClick={
-                                () => setSelectedHour(hour)}>{hour}</TimeButton>)
+                            {
+                                afternoonHours.map((hour) => 
+                                    {
+                                    const isReserved = horariosOcupados.some(
+                                        (item) => item.data === selectedDate && item.horario === hour
+                                    )
+                                    
+                                    return (
+                                    <TimeButton key={hour} selected={selectedHour === hour} disabled={isReserved} onClick=
+                                        {
+                                        () => setSelectedHour(hour)
+                                        }
+                                    >
+                                        {hour}
+                                    </TimeButton>)
+                                    })
                             }
                         </div>
                         
@@ -129,11 +165,28 @@ export default function HomePage() {
                     {/* Noite */}
                     <div className="mt-2 mb-4">
                     
-                        <Text variant="text-md">Noite</Text>
+                        <Text variant="text-md">
+                            Noite
+                        </Text>
 
                         <div className="flex flex-wrap gap-2 mt-1">
-                            {nightHours.map((hour) => <TimeButton key={hour} selected={selectedHour === hour} onClick={
-                                () => setSelectedHour(hour)}>{hour}</TimeButton>)
+                            {   
+                            
+                                nightHours.map((hour) => {
+                                    const isReserved = horariosOcupados.some(
+                                        (item) => item.data === selectedDate && item.horario === hour
+                                    )
+                                    
+                                    return (
+                                    <TimeButton key={hour} selected={selectedHour === hour} disabled={isReserved}onClick=
+                                            {
+                                                () => setSelectedHour(hour)
+                                            }
+                                        >
+                                            {hour}
+                                        </TimeButton>
+                                    )}
+                                )
                             }
                         </div>
 
@@ -144,19 +197,32 @@ export default function HomePage() {
                 {/* Cliente */}
                 <div>
     
-                <Text variant="title-md">Cliente</Text>
-
-                <InputText containerClassName="scale-85 mt-2 mb-9 w-0" className="w-100" placeholder="Samuel Campos" type="text" 
-                icon={profile} value={clientName} onChange={(e) => (setClientName(e.target.value))}/>
-
-                <Button className="" onClick={
-                        () => setHorariosOcupados(prev => [
-                            ...prev, {id: String(Date.now()), cliente: clientName, data: selectedDate, horario: selectedHour}
-                        ])}>
-                    <Text variant="title-md" className="text-gray-900">
-                        AGENDAR
+                    <Text variant="title-md">
+                        Cliente
                     </Text>
-                </Button>
+
+                    <InputText containerClassName="scale-85 mt-2 mb-9 w-0" className="w-100" placeholder="Samuel Campos" type="text" 
+                    icon={profile} value={clientName} onChange={(e) => (setClientName(e.target.value))}
+                    />
+
+                    <Button disabled={clientName == "" || selectedDate == "" || selectedHour == ""} 
+                            onClick=
+                        {
+                            () => {
+
+                                setHorariosOcupados(prev => [
+                                ...prev, {id: String(Date.now()), cliente: clientName, data: selectedDate, horario: selectedHour}
+                                ])
+                                setClientName("")
+                                setSelectedHour("")
+
+                            }
+                        }
+                    >
+                        <Text variant="title-md" className="text-gray-900">
+                            AGENDAR
+                        </Text>
+                    </Button>
 
                 </div>
             
@@ -169,14 +235,22 @@ export default function HomePage() {
                 <div className="flex gap-20">
                     
                     <div className="flex flex-col gap-1">
-                        <Text variant="title-lg">Sua agenda</Text>
-                        <Text variant="text-sm">Consulte os seus cortes de cabelo agendados por dia</Text>
+                        <Text variant="title-lg">
+                            Sua agenda
+                        </Text>
+                        <Text variant="text-sm">
+                            Consulte os seus cortes de cabelo agendados por dia
+                        </Text>
                     </div>
 
                     <div>
-                        <InputText containerClassName="scale-85" type="date" icon={calendar} onChange={
-                            (e) => setSearchByDate(e.target.value)
-                        }/>
+                        <InputText containerClassName="scale-85" type="date" icon={calendar} onChange=
+                            {
+                                (e) => {
+                                    setSearchByDate(e.target.value)
+                                }
+                            }
+                        />
                     </div>
 
                 </div>
@@ -184,60 +258,65 @@ export default function HomePage() {
                 {/* Cards */}
                 <div className="flex flex-col gap-8">
 
-                <Card icon={sun} title="Manhã" period="9h-12h">
-
-                {agendamentosManha.length > 0 
-                ?
-                agendamentosManha.map((item, index) =>
-                    <div key={index} className="flex justify-between my-1 mr-2">
-                        <div className="flex gap-7">
-                            <Text variant="title-md">{item.horario}</Text>
-                            <Text className= "pt-0.75" variant="text-sm">{item.cliente}</Text>
-                        </div>
-                        <IconButton icon={trash} className="pb-5 scale-85" 
-                        onClick={() => setHorariosOcupados(tudo => tudo.filter(Remanescentes => Remanescentes.id !== item.id))}/>
-                    </div>
-                    ) 
-                :
-                "Nenhum agendamento para este período"}
-
-                </Card>
-                
-                <Card icon={cloud} title="Tarde" period="12h-18h">
-                
-                {agendamentosTarde.length > 0 
-                ?
-                agendamentosTarde.map((item, index) =>
-                     <div key={index} className="flex justify-between my-1 mr-2">
-                        <div className="flex gap-7">
-                            <Text variant="title-md">{item.horario}</Text>
-                            <Text className= "pt-0.75" variant="text-sm">{item.cliente}</Text>
-                        </div>
-                        <IconButton icon={trash} className="pb-5 scale-85" 
-                        onClick={() => setHorariosOcupados(tudo => tudo.filter(Remanescentes => Remanescentes.id !== item.id))}/>
-                    </div>
-                    ) 
-                :
-                "Nenhum agendamento para este período"}
-
-                </Card>
-                
-                <Card icon={moon} title="Noite" period="18h-22h">
-                {agendamentosNoite.length > 0 
-                ?
-                agendamentosNoite.map((item, index) =>
-                     <div key={index} className="flex justify-between my-1 mr-2">
-                        <div className="flex gap-7">
-                            <Text variant="title-md">{item.horario}</Text>
-                            <Text className= "pt-0.75" variant="text-sm">{item.cliente}</Text>
-                        </div>
-                        <IconButton icon={trash} className="pb-5 scale-85" 
-                        onClick={() => setHorariosOcupados(tudo => tudo.filter(Remanescentes => Remanescentes.id !== item.id))}/>
-                    </div>
-                    ) 
-                :
-                "Nenhum agendamento para este período"}
-                </Card>
+                    <Card icon={sun} title="Manhã" period="9h-12h">
+                        {
+                            agendamentosManha.length > 0 
+                            ?
+                            agendamentosManha.map((item, index) =>
+                                <div key={index} className="flex justify-between my-1 mr-2">
+                                    <div className="flex gap-7">
+                                        <Text variant="title-md">{item.horario}</Text>
+                                        <Text className= "pt-0.75" variant="text-sm">{item.cliente}</Text>
+                                    </div>
+                                    <IconButton icon={trash} className="pb-5 scale-85" 
+                                        onClick={() => setHorariosOcupados(tudo => tudo.filter(Remanescentes => Remanescentes.id !== item.id))}
+                                    />
+                                </div>
+                            ) 
+                            :
+                            "Nenhum agendamento para este período"
+                        }
+                    </Card>
+                    
+                    <Card icon={cloud} title="Tarde" period="12h-18h">
+                        {
+                            agendamentosTarde.length > 0 
+                            ?
+                            agendamentosTarde.map((item, index) =>
+                                <div key={index} className="flex justify-between my-1 mr-2">
+                                    <div className="flex gap-7">
+                                        <Text variant="title-md">{item.horario}</Text>
+                                        <Text className= "pt-0.75" variant="text-sm">{item.cliente}</Text>
+                                    </div>
+                                    <IconButton icon={trash} className="pb-5 scale-85" 
+                                        onClick={() => setHorariosOcupados(tudo => tudo.filter(Remanescentes => Remanescentes.id !== item.id))}
+                                    />
+                                </div>
+                            ) 
+                            :
+                            "Nenhum agendamento para este período"
+                        }
+                    </Card>
+                    
+                    <Card icon={moon} title="Noite" period="18h-22h">
+                        {
+                            agendamentosNoite.length > 0 
+                            ?
+                            agendamentosNoite.map((item, index) =>
+                                <div key={index} className="flex justify-between my-1 mr-2">
+                                    <div className="flex gap-7">
+                                        <Text variant="title-md">{item.horario}</Text>
+                                        <Text className= "pt-0.75" variant="text-sm">{item.cliente}</Text>
+                                    </div>
+                                    <IconButton icon={trash} className="pb-5 scale-85" 
+                                        onClick={() => setHorariosOcupados(tudo => tudo.filter(Remanescentes => Remanescentes.id !== item.id))}
+                                    />
+                                </div>
+                            ) 
+                            :
+                            "Nenhum agendamento para este período"
+                        }
+                    </Card>
 
                 </div>
 
