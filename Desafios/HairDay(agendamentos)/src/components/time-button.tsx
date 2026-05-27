@@ -12,7 +12,7 @@ const timeButtonVariations = cva(`flex items-center justify-center rounded-xl`, 
             true: `border border-gray-500 point-events-none bg-transparent text-gray-500`
         },
         selected: {
-            true: `text-yellow border border-yellow`
+            true: `!text-yellow border border-yellow`
         }
     },
     defaultVariants: {

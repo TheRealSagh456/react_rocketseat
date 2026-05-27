@@ -10,12 +10,52 @@ import Card from "../components/card";
 import sun from "../assets/icons/sun.svg?react"
 import cloud from "../assets/icons/cloud.svg?react"
 import moon from "../assets/icons/moon.svg?react"
+import React from "react";
+import IconButton from "../components/icon-button";
+import trash from "../assets/icons/trash.svg?react"
 
-const morningHours = ["09:00","10:00","11:00","12:00"]
-const afternoonHours = ["13:00", "14:00", "15:00", "16:00", "17:00", "18:00"]
-const nightHours = ["19:00","20:00","21:00", "22:00"]
 
 export default function HomePage() {
+
+    const morningHours = ["09:00","10:00","11:00","12:00"]
+    const afternoonHours = ["13:00", "14:00", "15:00", "16:00", "17:00", "18:00"]
+    const nightHours = ["19:00","20:00","21:00", "22:00"]
+
+    const [selectedHour, setSelectedHour] = React.useState("")
+    const [selectedDate, setSelectedDate] = React.useState("")
+    const [clientName, setClientName] = React.useState("")
+
+    const[searchByDate, setSearchByDate] = React.useState("")
+
+    const [horariosOcupados, setHorariosOcupados] = React.useState<{
+        id: string
+        data: string,
+        horario: string,
+        cliente: string
+    }[]>(() => {
+        const localst = localStorage.getItem("horariosOcupados")
+        return localst ? JSON.parse(localst) : []
+    })
+
+    React.useEffect(() => {
+        localStorage.setItem("horariosOcupados", JSON.stringify(horariosOcupados))
+    }, [horariosOcupados])
+
+    function handleSearchByDate(period: "manha" | "tarde" | "noite") {   
+
+        const periodos = {
+            manha: ["09:00", "10:00", "11:00", "12:00"],
+            tarde: ["13:00","14:00","15:00","16:00","17:00","18:00"],
+            noite: ["19:00","20:00","21:00","22:00"]
+        } 
+
+        return horariosOcupados.filter((item) => item.data === searchByDate && periodos[period].includes(item.horario) )
+    }
+
+    const agendamentosManha = handleSearchByDate('manha')
+    const agendamentosTarde = handleSearchByDate('tarde')
+    const agendamentosNoite = handleSearchByDate('noite')
+
     return (
         <div className="relative p-5 flex">
         
@@ -32,6 +72,7 @@ export default function HomePage() {
         
                 {/* Titulo */}
                 <div className="flex flex-col mt-8 mb-3">
+                    
                     <Text variant="title-lg" className="mt-9">
                         Agende um atendimento 
                     </Text>
@@ -39,19 +80,25 @@ export default function HomePage() {
                     <Text variant="text-sm" className="mt-2">
                         Selecione a data, horário e informe o nome do cliente para <br/> criar o agendamento
                     </Text>
+
                 </div>
 
                 {/* Data */}
                 <div>
+                    
                     <Text className="" variant="title-md">
                         Data
                     </Text>
-                    <InputText containerClassName="scale-85" type="date" icon={calendar}/>
-
+                    
+                    <InputText containerClassName="scale-85 w-0" type="date" icon={calendar} onChange={
+                        (e) => (setSelectedDate(e.target.value))
+                    }/>
+                
                 </div>
 
                 {/* Horarios */}
                 <div>
+                  
                   <Text variant="title-md">Horários</Text>
 
                     {/* Manhã */}
@@ -59,16 +106,22 @@ export default function HomePage() {
                         <Text variant="text-md">Manhã</Text>
 
                         <div className="flex flex-wrap gap-2 mt-1">
-                            {morningHours.map((hour) => <p><TimeButton key={hour}>{hour}</TimeButton></p>)}
+                            {morningHours.map((hour) => <TimeButton key={hour} selected={selectedHour === hour} onClick={
+                                () => setSelectedHour(hour)}>{hour}</TimeButton>)
+                            }
                         </div>
+                  
                     </div>
                     
                     {/* Tarde */}
                     <div className="mt-2 mb-4">
+                        
                         <Text variant="text-md">Tarde</Text>
                         
                         <div className="flex flex-wrap gap-2 mt-1 mr-10">
-                            {afternoonHours.map((hour) => <p><TimeButton key={hour}>{hour}</TimeButton></p>)}
+                            {afternoonHours.map((hour) => <TimeButton key={hour} selected={selectedHour === hour} onClick={
+                                () => setSelectedHour(hour)}>{hour}</TimeButton>)
+                            }
                         </div>
                         
                     </div>
@@ -79,10 +132,13 @@ export default function HomePage() {
                         <Text variant="text-md">Noite</Text>
 
                         <div className="flex flex-wrap gap-2 mt-1">
-                            {nightHours.map((hour) => <p><TimeButton key={hour}>{hour}</TimeButton></p>)}
+                            {nightHours.map((hour) => <TimeButton key={hour} selected={selectedHour === hour} onClick={
+                                () => setSelectedHour(hour)}>{hour}</TimeButton>)
+                            }
                         </div>
 
-                        </div>
+                    </div>
+
                 </div>
 
                 {/* Cliente */}
@@ -90,9 +146,13 @@ export default function HomePage() {
     
                 <Text variant="title-md">Cliente</Text>
 
-                    <InputText containerClassName="scale-85 mt-2 mb-9 w-0" className="w-100" placeholder="Samuel Campos" type="text" icon={profile}/>
+                <InputText containerClassName="scale-85 mt-2 mb-9 w-0" className="w-100" placeholder="Samuel Campos" type="text" 
+                icon={profile} value={clientName} onChange={(e) => (setClientName(e.target.value))}/>
 
-                <Button className="">
+                <Button className="" onClick={
+                        () => setHorariosOcupados(prev => [
+                            ...prev, {id: String(Date.now()), cliente: clientName, data: selectedDate, horario: selectedHour}
+                        ])}>
                     <Text variant="title-md" className="text-gray-900">
                         AGENDAR
                     </Text>
@@ -114,7 +174,9 @@ export default function HomePage() {
                     </div>
 
                     <div>
-                        <InputText containerClassName="scale-85" type="date" icon={calendar}/>
+                        <InputText containerClassName="scale-85" type="date" icon={calendar} onChange={
+                            (e) => setSearchByDate(e.target.value)
+                        }/>
                     </div>
 
                 </div>
@@ -123,13 +185,58 @@ export default function HomePage() {
                 <div className="flex flex-col gap-8">
 
                 <Card icon={sun} title="Manhã" period="9h-12h">
-                {"waaaaaa"}
+
+                {agendamentosManha.length > 0 
+                ?
+                agendamentosManha.map((item, index) =>
+                    <div key={index} className="flex justify-between my-1 mr-2">
+                        <div className="flex gap-7">
+                            <Text variant="title-md">{item.horario}</Text>
+                            <Text className= "pt-0.75" variant="text-sm">{item.cliente}</Text>
+                        </div>
+                        <IconButton icon={trash} className="pb-5 scale-85" 
+                        onClick={() => setHorariosOcupados(tudo => tudo.filter(Remanescentes => Remanescentes.id !== item.id))}/>
+                    </div>
+                    ) 
+                :
+                "Nenhum agendamento para este período"}
+
                 </Card>
+                
                 <Card icon={cloud} title="Tarde" period="12h-18h">
-                {"waaaaaa"}
+                
+                {agendamentosTarde.length > 0 
+                ?
+                agendamentosTarde.map((item, index) =>
+                     <div key={index} className="flex justify-between my-1 mr-2">
+                        <div className="flex gap-7">
+                            <Text variant="title-md">{item.horario}</Text>
+                            <Text className= "pt-0.75" variant="text-sm">{item.cliente}</Text>
+                        </div>
+                        <IconButton icon={trash} className="pb-5 scale-85" 
+                        onClick={() => setHorariosOcupados(tudo => tudo.filter(Remanescentes => Remanescentes.id !== item.id))}/>
+                    </div>
+                    ) 
+                :
+                "Nenhum agendamento para este período"}
+
                 </Card>
+                
                 <Card icon={moon} title="Noite" period="18h-22h">
-                {"waaaaaa"}
+                {agendamentosNoite.length > 0 
+                ?
+                agendamentosNoite.map((item, index) =>
+                     <div key={index} className="flex justify-between my-1 mr-2">
+                        <div className="flex gap-7">
+                            <Text variant="title-md">{item.horario}</Text>
+                            <Text className= "pt-0.75" variant="text-sm">{item.cliente}</Text>
+                        </div>
+                        <IconButton icon={trash} className="pb-5 scale-85" 
+                        onClick={() => setHorariosOcupados(tudo => tudo.filter(Remanescentes => Remanescentes.id !== item.id))}/>
+                    </div>
+                    ) 
+                :
+                "Nenhum agendamento para este período"}
                 </Card>
 
                 </div>
