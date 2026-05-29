@@ -41,7 +41,7 @@ export default function HomePage() {
         localStorage.setItem("horariosOcupados", JSON.stringify(horariosOcupados))
     }, [horariosOcupados])
 
-    function handleSearchByDate(period: "manha" | "tarde" | "noite") {   
+    function getSearchByDate(period: "manha" | "tarde" | "noite") {   
 
         const periodos = {
             manha: ["09:00", "10:00", "11:00", "12:00"],
@@ -52,9 +52,9 @@ export default function HomePage() {
         return horariosOcupados.filter((item) => item.data === searchByDate && periodos[period].includes(item.horario) )
     }
 
-    const agendamentosManha = handleSearchByDate('manha')
-    const agendamentosTarde = handleSearchByDate('tarde')
-    const agendamentosNoite = handleSearchByDate('noite')
+    const agendamentosManha = getSearchByDate('manha')
+    const agendamentosTarde = getSearchByDate('tarde')
+    const agendamentosNoite = getSearchByDate('noite')
 
     return (
         <div className="relative p-5 flex">
@@ -142,8 +142,8 @@ export default function HomePage() {
                         
                         <div className="flex flex-wrap gap-2 mt-1 mr-10">
                             {
-                                afternoonHours.map((hour) => 
-                                    {
+                                afternoonHours.map((hour) => {
+
                                     const isReserved = horariosOcupados.some(
                                         (item) => item.data === selectedDate && item.horario === hour
                                     )
@@ -173,6 +173,7 @@ export default function HomePage() {
                             {   
                             
                                 nightHours.map((hour) => {
+                                    
                                     const isReserved = horariosOcupados.some(
                                         (item) => item.data === selectedDate && item.horario === hour
                                     )
