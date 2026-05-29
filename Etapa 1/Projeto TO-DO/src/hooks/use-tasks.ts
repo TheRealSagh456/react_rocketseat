@@ -9,13 +9,14 @@ export default function useTasks() {
     const [tasks, setTasks] = React.useState<Task[]>([])
     const [isLoadingTasks, setIsLoadingTasks] = React.useState(true)
 
-    async function fetchTasks() {
+    const fetchTasks = React.useCallback(async () =>  {
         if(isLoadingTasks) {
             await delay(1000)
             setIsLoadingTasks(false)
         }
         setTasks(tasksData)
-    }
+        console.timeEnd("Carregando tarefas...")
+    }, [tasksData, isLoadingTasks, setIsLoadingTasks])
 
     React.useEffect(() => {
         fetchTasks(), [tasksData]
