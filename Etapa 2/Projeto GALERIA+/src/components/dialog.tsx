@@ -19,8 +19,7 @@ export function DialogOverlay({
 }: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
     return (
         <DialogPrimitive.Overlay className={cn(`
-        fixed inset-0 z-50 bg-background-secondary
-        bg-opacity-60
+        fixed inset-0 z-50 bg-background-secondary/60
         backdrop-blur-sm
         data-[state=open]:animate-in
         data-[state=close]:animate-out
