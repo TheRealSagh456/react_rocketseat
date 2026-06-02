@@ -1,28 +1,37 @@
 import { useParams } from "react-router";
 import Text from "../components/text";
 import Container from "../components/container";
-import type { Photo } from "../contexts/photos/models/photo";
 import Skeleton from "../components/skeleton";
 import PhotosNavigator from "../contexts/photos/components/photo-navigator";
 import ImagePreview from "../components/image-preview";
 import Button from "../components/button";
+import AlbumsListSelectable from "../contexts/albums/components/albums-selectable-list";
+import useAlbums from "../contexts/albums/hooks/use-albums";
+import usePhoto from "../contexts/photos/hooks/use-photo";
+import type { Photo } from "../contexts/photos/models/photo";
+import React from "react";
 
 
 export default function PagePhotoDetails() {
     const {id} = useParams()
-    const isLoadingPhoto = false //_temp
-    const photo = {
-        id: '41',
-        title: 'gato pensante',
-        imageId: 'square-cat.png',
-        albums: [
-            {id: '67', title: 'AlbUM'},
-            {id: "69", title: 'Albudois'},
-            {id: "zerocentos e zerenta e zero", title: 'Atchim'},
-        ]
-    } as Photo
+    const {photo, previousPhotoId, nextPhotoId, isLoadingPhoto, deletePhoto} = usePhoto(id)
+    const {albums, isLoadingAlbums} = useAlbums()
 
-    return <>
+    const [isDeletingPhoto, setIsDeletingPhoto] = React.useTransition()
+
+    function handleDeletePhoto() {
+        setIsDeletingPhoto(async () => {
+            await deletePhoto(photo!.id)
+        })
+    }
+
+    if(!isLoadingPhoto && !photo) {
+        return <>Foto não encontrada</>
+    }
+
+    
+
+    return (
         <Container>
             <header className="flex items-center justify-between gap-8 mb-8">
                 {!isLoadingPhoto ? (
@@ -30,24 +39,35 @@ export default function PagePhotoDetails() {
                 ): (
                     <Skeleton className="w-48 h-8"/>
                 )}
-                <PhotosNavigator loading={isLoadingPhoto}/>
+                <PhotosNavigator previousPhotoId={previousPhotoId} nextPhotoId={nextPhotoId} loading={isLoadingPhoto}/>
             </header>
 
-            <div className="grid grid-cols-[21rem] gap-24">
+            <div className="grid grid-cols-[21rem_1fr] gap-24">
                 <div className="space-y-3">
                     {!isLoadingPhoto ?
                     <ImagePreview
-                        src={`/images/${photo?.imageId}`}
+                        src={`${import.meta.env.VITE_IMAGES_URL}/${photo?.imageId}`}
                         title={photo?.title}
-                        imageClassName='h-84'
+                        imageClassName='h-[21rem]'
                     /> : (
                     <Skeleton className="h-84"/>
                     )}
 
-                    {!isLoadingPhoto ? <Button variant="destructive">Excluir</Button> : <Skeleton className="w-20 h-10"/>}
+                    {!isLoadingPhoto ? <Button variant="destructive" onClick={handleDeletePhoto} disabled={isDeletingPhoto}>
+                    
+                    {isDeletingPhoto ? "Excluindo..." : "Excluir"}
+
+                    </Button> : <Skeleton className="w-20 h-10"/>}
+                </div>
+                <div className="py-3">
+                    <Text as="h3" variant="heading-medium" className="mb-6">
+                    Álbuns
+                    </Text>
+
+                    <AlbumsListSelectable loading={isLoadingAlbums} photo={photo as Photo} albums={albums}/>
                 </div>
             </div>
         </Container>
         
-    </>
+    )
 }
