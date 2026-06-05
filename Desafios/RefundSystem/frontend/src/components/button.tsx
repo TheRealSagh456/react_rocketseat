@@ -1,7 +1,7 @@
 import {cx, tv, type VariantProps} from 'tailwind-variants'
 
 const buttonVariants = tv({
-    base: `flex items-center justify-center rounded-xl font-medium transition-colors bg-green-100 
+    base: `flex items-center justify-center rounded-lg font-medium transition-colors bg-green-100 
     text-white cursor-pointer`,
     variants: {
         disabled: {

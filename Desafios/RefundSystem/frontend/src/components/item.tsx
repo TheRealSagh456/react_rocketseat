@@ -3,7 +3,7 @@ import Icon, { IconNames } from "./icons"
 
 
 const itemVariants = tv({
-    base: 'flex justify-between items-center'
+    base: 'flex justify-between items-center cursor-pointer hover:bg-green-200/5 rounded-xl px-3 py-1 transition'
 })
 
 interface ItemProps extends React.ComponentProps<'div'> {
