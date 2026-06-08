@@ -12,6 +12,7 @@ interface ItemProps extends React.ComponentProps<'div'> {
     nome: string
 }
 
+
 export default function Item({className, variant, valor, nome, ...props}: ItemProps) { 
 
     const valorFormatado = valor.toLocaleString('pt-BR', {

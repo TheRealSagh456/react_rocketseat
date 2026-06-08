@@ -7,14 +7,30 @@ import DialogContent, { Dialog, DialogTrigger } from "../components/dialog";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import React from "react";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../api/api";
+import type { IconNames } from "../components/icons";
 
+    const categoryMap: Record<string, keyof typeof IconNames> = {
+        "food": "Alimentação",
+        "hosting": "Hospedagem",
+        "transport": "Transporte",
+        "services": "Serviços",
+        "other": "Outros",
+    }
 
 export default function GetRefund() {
 
-    const [name, setName] = React.useState("")
-    const [category, setCategory] = React.useState<Types>("")
     const [value, setValue] = React.useState("")
-    const [arch, setArch] = React.useState<File | null>(null)
+
+    const {id} = useParams()
+
+    const {data, isLoading} = useQuery({
+        queryKey: [`/refunds/${id}`],
+        queryFn: () => api.get(`/refunds/${id}`).then(res => res.data.refund)
+        
+    })
 
     return (
         <div className="min-h-screen flex w-full justify-center p-4 ">
@@ -25,12 +41,13 @@ export default function GetRefund() {
             className="gap-1 w-full max-w-lg px-6 h-fit">
                 <form className="mt-4 flex flex-col gap-2">
                     <div className="pb-4">
-                        <Input type="text" title="NOME DA SOLICITAÇÃO" />
+                        <Input type="text" title="NOME DA SOLICITAÇÃO" value={data?.title ?? ''} readOnly/>
                     </div>
 
                     <div className="flex justify-between gap-6 pb-6">
                         <div className="w-full">
-                            <InputEnum className="flex-1" label="CATEGORIAS" value={category ?? ""} onValueChange={setCategory}/>
+                            <InputEnum className="flex-1" label="CATEGORIAS" 
+                            value={categoryMap[data?.category ?? ''] ?? ""}/>
                         </div>
                     
                         <div>
@@ -38,7 +55,11 @@ export default function GetRefund() {
                             inputMode="decimal" 
                             title="VALOR" 
                             className="inset-0" 
-                            value={value} 
+                            value={data?.value.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }) ?? ''} 
+                            readOnly
                             placeholder="0,00" 
                             step={0.01}
                             onChange={(e) => {

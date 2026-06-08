@@ -3,7 +3,18 @@ import InputEnum, { type Types } from "../components/input-enum";
 import Input from "../components/input";
 import Button from "../components/button";
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../api/api";
+import { toast } from "sonner";
 
+const categoryMap: Record<Types, string> = {
+    "Alimentação": "food",
+    "Hospedagem": "hosting",
+    "Serviços" : "services",
+    "Transporte" : "transport",
+    "Outros" : "other",
+    "": "",
+}
 
 export default function Refund() {
 
@@ -13,6 +24,44 @@ export default function Refund() {
     const [arch, setArch] = React.useState<File | null>(null)
     const [preview, setPreview] = React.useState('')
 
+    const [isLoading, setIsloading] = React.useState(false)
+    const navigate = useNavigate()
+
+    async function handleSubmit() {
+        if(!name || !category || !value || !arch) return
+        
+        try {
+            setIsloading(true)
+
+            const formData = new FormData()
+
+            formData.append('receiptFile', arch)
+
+            const receiptResponde = await api.post('/receipts', formData, {
+                headers: {'Content-Type': 'multipart/form-data'}
+            })
+
+            const receiptId = receiptResponde.data.receipt.id
+
+            const numeric = Number(value.replace(/\./g, '').replace(',', '.'))
+
+            await api.post('/refunds', {
+                title: name,
+                category: categoryMap[category],
+                value: numeric,
+                receipt: receiptId
+            })
+            navigate('/confirmation')
+
+        } catch(err) {
+            console.error(err)
+            toast.error("Falha no envio da solicitação!")
+
+        } finally {
+            setIsloading(false)
+        }
+    } 
+
     useEffect(() => {
         return () => {
         if (preview) {
@@ -20,6 +69,7 @@ export default function Refund() {
         }
       }
     }, [preview])
+
     return (
          <div className="min-h-screen flex w-full justify-center p-4 ">
         <Card 
@@ -46,7 +96,7 @@ export default function Refund() {
                         }}
                         onBlur={(e) => {
                             if (!value) return
-                            const numeric = Number(e.target.value.replace(',', '.'))
+                            const numeric = Number(value.replace(/\./g, '').replace(',', '.'))
                             
                             if(isNaN(numeric)) return
 
@@ -71,9 +121,9 @@ export default function Refund() {
                     }/>
                 </div>
 
-                <Button type='button' className="w-full gap-2 h-13" onClick={() => (console.log(name, category, value))}
-                disabled={!name || !category || !value || !arch}>
-                    <span>Enviar</span>
+                <Button type='button' className="w-full gap-2 h-13" onClick={handleSubmit}
+                disabled={!name || !category || !value || !arch || isLoading}>
+                    <span>{isLoading ? 'Enviando...' : 'Enviar'}</span>
                 </Button>
             </form>
         </Card>
