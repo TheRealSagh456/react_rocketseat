@@ -21,17 +21,18 @@ interface InputEnumProps extends React.ComponentProps<'div'> {
     label?:string
     wrapperClassName?: string
     visible?: boolean
+    value?: Types | ""
+    onValueChange?:  (value: Types) => void
 }
 
 export type Types = keyof typeof IconNames
 
 
 
-export default function InputEnum({wrapperClassName, className, label, visible, ...props}: InputEnumProps) {
+export default function InputEnum({wrapperClassName, className, label, value, visible, onValueChange, ...props}: InputEnumProps) {
     const categorias = Object.keys(IconNames) as Types[]
 
     const [open, setOpen] = useState(false)
-    const [selected, setSelected] = useState<Types | null>(null)
 
     function showOptions() {
         setOpen(prevOpen => !prevOpen)
@@ -47,17 +48,17 @@ export default function InputEnum({wrapperClassName, className, label, visible, 
             <div className={cx(wrapperClassName)} {...props}>
                 <button type="button" onClick={showOptions} className={inputEnumButtonVariants()}>
                     <span className="text-gray-200">
-                    {selected ? selected : 'Selecione'} 
+                    {value ?? 'Selecione'} 
                     </span>
                      <DownArrow className="fill-gray-200 p-1"/>
                 </button>
 
                 {open && (
                         <div className="absolute w-full top-full left-0 bg-white rounded-lg mt-1 z-10">
-                            {categorias.map((option) => (
-                                <button type='button' key={option} className={inputEnumVariants()} onClick={
+                            {categorias.map((option, category) => (
+                                <button type='button' key={option} value={category} className={inputEnumVariants()} onClick={
                                     () => {
-                                    setSelected(option)
+                                    onValueChange?.(option)
                                     setOpen(false)}}>
                                     {option}
                                 </button>

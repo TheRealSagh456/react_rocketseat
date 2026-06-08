@@ -14,7 +14,8 @@ export const IconNames = {
     Hospedagem: IconBed,
     Transporte: IconCar,
     Serviços: IconTool ,
-    Outros: IconOutros
+    Outros: IconOutros,
+    '': ''
 }
 
 interface IconProps extends React.ComponentProps<'div'> {

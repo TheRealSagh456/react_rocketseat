@@ -12,39 +12,47 @@ const InputVariants = tv({
 })
 
 interface InputProps extends React.ComponentProps<'input'>, VariantProps<typeof InputVariants> {
+    file?: File | null
+    preview?: string
+    onFileChange?: (file: File, preview: string) => void
 }
 
 export default function Input({
     className,
     title,
     type,
+    file,
+    onFileChange,
+    preview,
     ...props
 }: InputProps) {
-    const [file, setFile] = React.useState<File | null>(null)
-    const [preview, setPreview] = React.useState('')
 
-    function handleFileUp (e: React.ChangeEvent<HTMLInputElement>) {
+    const allowedTypes = [
+        'application/pdf',
+        'image/png',
+        'image/jpeg'
+    ]
+
+function handleFileUp (e: React.ChangeEvent<HTMLInputElement>) {
     const uploadedFile = e.target.files?.[0]
 
     if(!uploadedFile) {
         return;
     }
 
-    if (uploadedFile.type !== 'application/pdf') {
-        toast.error("Tipo de arquivo inválido!")
-        return;
-    }
-
-    if(uploadedFile.size > 5*1024**2) {
+    if(uploadedFile.size > 2*1024**2) {
         toast.error("Tamanho máximo excedido!")
         return;
     }
 
-    const filePreview = URL.createObjectURL(uploadedFile)
-    setFile(uploadedFile)
-    setPreview(filePreview)
+    if (!allowedTypes.includes(uploadedFile.type)) {
+        toast.error("Tipo de arquivo não permitido.")
+        return
+    }
 
-    return
+    const filePreview = URL.createObjectURL(uploadedFile)
+    onFileChange?.(uploadedFile, filePreview)
+    
 }
 
     const inputRef = React.useRef<HTMLInputElement>(null)
@@ -74,8 +82,8 @@ export default function Input({
                     <input
                         {...props}
                         type={'file'}
-                        accept=".pdf" 
                         ref={inputRef}
+                        accept={allowedTypes.join(',')}
                         onChange={handleFileUp} 
                         className="opacity-0 absolute pointer-events-none" 
                     />
@@ -83,7 +91,9 @@ export default function Input({
                     
                 </div>
                 <div>
-                    {!preview ? '' : <iframe src={preview} className="border h-155 w-full"/> }
+                    {file?.type === 'application/pdf' && <iframe src={preview} className="border h-155 w-full"/>}
+                    {(file?.type.startsWith('image/')) && <img src={preview} className="border w-full rounded-lg object-contain"/>}
+                         
                 </div>
             </div>
         ) : (
