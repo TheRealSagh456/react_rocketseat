@@ -30,7 +30,7 @@ export type Types = keyof typeof IconNames
 
 
 export default function InputEnum({wrapperClassName, className, label, value, visible, onValueChange, ...props}: InputEnumProps) {
-    const categorias = Object.keys(IconNames) as Types[]
+    const categorias = (Object.keys(IconNames) as Types[]).filter(c=> c !== '')
 
     const [open, setOpen] = useState(false)
 

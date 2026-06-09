@@ -23,16 +23,21 @@ export default function HomePage() {
 
     const [page, setPage] = React.useState(1)
     const [search, setSearch] = React.useState('')
+    const [submitSearch, setSubmitSearch] = React.useState('')
 
     const navigate = useNavigate()
 
-    const {data, isLoading} = useQuery({
-        queryKey: ['refunds', page, search],
+    const {data} = useQuery({
+        queryKey: ['refunds', page, submitSearch],
         queryFn: () => api.get('/refunds', {params: {page, q: search || undefined}})
         .then(res => res.data.refunds)
     })
 
     const pages = data?.meta.lastPage ?? 1
+
+    function handleSearch() {
+        return setSubmitSearch(search)
+    }
 
     return (
         <div className="flex w-full justify-center py-10 px-4 md:px-20">
@@ -44,10 +49,12 @@ export default function HomePage() {
                         placeholder="Pesquisar pelo nome" 
                         value={search} onChange={(e) => 
                         setSearch(e.target.value)}
+                        onKeyDown={(e) => {if(e.key === 'Enter') handleSearch()}}
                     />
                     </div>
 
-                    <Button icon disabled>
+                    <Button icon
+                    onClick={() => handleSearch()} >
                     <Lupa className="fill-white w-5"/>
                     </Button>
                 

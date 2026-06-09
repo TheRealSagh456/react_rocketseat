@@ -1,16 +1,16 @@
 import Button from "../components/button";
 import Card from "../components/card";
-import InputEnum, { type Types } from "../components/input-enum";
+import InputEnum from "../components/input-enum";
 import Input from "../components/input";
 import FileIcon from '../assets/icons/file.svg?react'
 import DialogContent, { Dialog, DialogTrigger } from "../components/dialog";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { toast } from "sonner";
-import React from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/api";
 import type { IconNames } from "../components/icons";
+import React from "react";
 
     const categoryMap: Record<string, keyof typeof IconNames> = {
         "food": "Alimentação",
@@ -22,15 +22,16 @@ import type { IconNames } from "../components/icons";
 
 export default function GetRefund() {
 
-    const [value, setValue] = React.useState("")
-
     const {id} = useParams()
 
-    const {data, isLoading} = useQuery({
+    const [isLoadingReceipt, setIsLoadingReceipt] = React.useState(false)
+
+    const {data} = useQuery({
         queryKey: [`/refunds/${id}`],
         queryFn: () => api.get(`/refunds/${id}`).then(res => res.data.refund)
-        
     })
+    const navigate = useNavigate()
+
 
     return (
         <div className="min-h-screen flex w-full justify-center p-4 ">
@@ -62,32 +63,22 @@ export default function GetRefund() {
                             readOnly
                             placeholder="0,00" 
                             step={0.01}
-                            onChange={(e) => {
-                                if (!e.target.value) return
-                                setValue(e.target.value)
-                            }}
-                            onBlur={(e) => {
-                                if (!value) return
-                                const numeric = Number(e.target.value.replace(',', '.'))
-                                
-                                if(isNaN(numeric)) return
-
-                                const formatted = numeric.toLocaleString('pt-BR', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                })
-
-                                setValue(formatted)
-                                console.log(formatted)
-                            }}/>
+                            />
                         </div>
                     </div>
 
                     <div className="">
-                        <Button type="button" className="border bg-white w-full gap-2 hover:bg-white hover:border-green-200 h-13">
+                        <Button 
+                        type="button" 
+                        className="border bg-white w-full gap-2 hover:bg-white hover:border-green-200 h-13" 
+                        onClick={async () => {
+                            setIsLoadingReceipt(true)
+                            const res = await api.get(`/receipts/download/${data?.receipt.id}`)
+                            window.open(`http://localhost:3333${res.data.url}`, '_blank')
+                            setIsLoadingReceipt(false)
+                        }}>
                             <FileIcon className="fill-green-200 scale-80"/> 
-                            <span className="text-green-200">Abrir comprovante</span>
-                            {/* Vai ter que ter um loading escrito "abrindo comprovante..." */}
+                            <span className="text-green-200">{isLoadingReceipt ? 'Abrindo comprovante...' : 'Abrir comprovante'}</span>
                         </Button>
                     </div>
 
@@ -111,9 +102,15 @@ export default function GetRefund() {
                                             </Button>
                                         </DialogClose>
                                         <DialogClose asChild>
-                                            <Button onClick={() => {
-                                                toast.success("Solicitação de reembolso excluída com sucesso")
-                                                }}>
+                                            <Button onClick={async () => {
+                                            try {
+                                                await api.delete(`/refunds/${id}`)
+                                                toast.success("Solicitação excluída com sucesso")
+                                            } catch(err) {
+                                                toast.error("Erro ao excluir solicitação")
+                                                console.error(err)
+                                            } finally {navigate('/')}
+                                            }}>
                                                 <span className="font-bold">Confirmar</span>
                                             </Button>
                                         </DialogClose>

@@ -1,0 +1,12 @@
+{
+  "extends": "@adonisjs/tsconfig/tsconfig.app.json",
+  "compilerOptions": {
+    "rootDir": "./",
+    "outDir": "./build",
+    "moduleResolution": "node16",
+    "module": "Node16",
+    "target": "es2020",
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}

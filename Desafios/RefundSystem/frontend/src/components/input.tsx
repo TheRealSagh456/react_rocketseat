@@ -92,7 +92,7 @@ function handleFileUp (e: React.ChangeEvent<HTMLInputElement>) {
                 </div>
                 <div>
                     {file?.type === 'application/pdf' && <iframe src={preview} className="border h-155 w-full"/>}
-                    {(file?.type.startsWith('image/')) && <img src={preview} className="border w-full rounded-lg object-contain"/>}
+                    {(file?.type.startsWith('image/')) && <img src={preview} className="border-2 border-green-100 w-full rounded-lg object-contain"/>}
                          
                 </div>
             </div>

@@ -94,7 +94,7 @@ export default function Refund() {
                             if (!e.target.value) return
                             setValue(e.target.value)
                         }}
-                        onBlur={(e) => {
+                        onBlur={() => {
                             if (!value) return
                             const numeric = Number(value.replace(/\./g, '').replace(',', '.'))
                             
