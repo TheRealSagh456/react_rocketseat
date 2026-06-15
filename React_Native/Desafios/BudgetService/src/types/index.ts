@@ -9,6 +9,7 @@ export enum StatusTypes {
 
 export type ItemTypes = {
     id: string,
+    title: string,
     description: string,
     qty: number,
     price: number

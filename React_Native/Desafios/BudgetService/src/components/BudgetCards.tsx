@@ -4,7 +4,7 @@ import { styles } from "./styles"
 import { Text } from "react-native"
 
 type Props = {
-    icon: keyof typeof MaterialIcons.glyphMap
+    icon?: keyof typeof MaterialIcons.glyphMap
     title: string,
     children: React.ReactNode
     total?: boolean
@@ -35,8 +35,16 @@ export default function BudgetCards({icon, title, children, total}: Props) {
                     alignItems: 'center'
                 }
             }>
-                <MaterialIcons name={icon} size={24} color={'purple'}/>
+                {icon 
+                ? 
+                <>
+                    <MaterialIcons name={icon} size={24} color={'purple'}/>
+                    <Text style={{color: 'gray'}}>{title}</Text>
+                </>
+                : 
                 <Text style={{color: 'gray'}}>{title}</Text>
+}
+                
             </View>
 
             <View style={styles.divider}/>

@@ -3,6 +3,7 @@ import { FlatList, Text, TextInput, View } from 'react-native';
 import { styles } from './styles';
 import Quote from '@/components/Quote';
 import { StatusTypes } from '@/types';
+import { Input, InputTypes } from '@/components/Input';
 
 export default function Home() {
   const quotes = Array.from({length: 30}, (_,index) => ({
@@ -25,17 +26,7 @@ export default function Home() {
       <View>
 
         <View>
-          <TextInput 
-            placeholder='Título ou cliente'
-            placeholderTextColor="gray"
-            style={{
-              borderWidth: 1,
-              height: 50,
-              margin: 16,
-              paddingHorizontal: 12, //do placeholder
-              borderRadius: 25,
-            }}
-          />
+          <Input variant={InputTypes.text} icon='search'/>
         </View>
         
       </View>
