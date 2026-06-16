@@ -1,19 +1,23 @@
 import Header from '@/components/headerHome';
-import { FlatList, Text, TextInput, View } from 'react-native';
+import { FlatList, Text, View } from 'react-native';
 import { styles } from './styles';
 import Quote from '@/components/Quote';
-import { StatusTypes } from '@/types';
+import { QuoteDocTypes } from '@/types';
 import { Input, InputTypes } from '@/components/Input';
+import { getQuotes } from '@/storage';
+import React from 'react';
 
 export default function Home() {
-  const quotes = Array.from({length: 30}, (_,index) => ({
-      id: index.toString(),
-      title:'Fábrica de Toddynho', 
-      client:'Samuel Campos', 
-      price:22222, 
-      status:StatusTypes.Aprovado, 
-      items: []
-    }))
+  const [quotes, setQuotes] = React.useState<QuoteDocTypes[]>([])
+
+  React.useEffect(() => {
+    async function loadQuotes() {
+      const data = await getQuotes()
+      setQuotes(data)  
+    }
+
+    loadQuotes()
+  }, [])
 
   return (
     <>
@@ -31,6 +35,14 @@ export default function Home() {
         
       </View>
 
+        {
+          quotes.length < 1 
+          ? <View style={{flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: 50}}>
+              <Text style={{justifyContent: 'center', alignItems: 'center', color: '#A1A2A1'}}>
+                Os orçamentos adicionados serão exibidos aqui
+              </Text>
+            </View>
+          :
         <FlatList
           contentContainerStyle={styles.quoteList}
           data={quotes}
@@ -39,8 +51,9 @@ export default function Home() {
             <Quote quote={item}/>
           )}
         />
+        }
     </View>
-
+          
     </>
       )
 }

@@ -2,14 +2,15 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
     quoteContainer: {
-        flex: 1,
-        backgroundColor: '#E6E5E5',
-        borderRadius: 10,
-        flexDirection: "row",
-        alignContent: 'center',
-        justifyContent: "space-between",
-        paddingVertical: 15,
-        paddingHorizontal: 15
+    backgroundColor: '#FAFAFA',
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+    width: '100%',
     },
     budgetCards: {
         flex: 1,

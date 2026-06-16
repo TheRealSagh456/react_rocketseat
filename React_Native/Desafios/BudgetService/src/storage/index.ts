@@ -1,25 +1,93 @@
-import { ItemTypes, QuoteDocTypes } from "@/types";
+import { FilterOptions, ItemTypes, QuoteDocTypes } from "@/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export function newQuote(quote: QuoteDocTypes) {
+const STORAGE_KEY = "@quotes"
 
+export async function getQuotes() {
+    const storage = await AsyncStorage.getItem(STORAGE_KEY)
+
+    if(!storage) {
+        return []
+    }
+
+    return JSON.parse(storage) as QuoteDocTypes[]
 }
 
-export function getQuotes() {
+export async function getQuoteById(id: string) {
+    const quotes = await getQuotes()
 
+    return quotes.find(quote => quote.id === id)
 }
 
-export function updateQuote(quote: QuoteDocTypes) {
+export async function newQuote(quote: QuoteDocTypes) {
+    const quotes = await getQuotes()
 
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([...quotes, quote]))
 }
 
-export function deleteQuote(id: string) {
+export async function updateQuote(updatedQuote: QuoteDocTypes) {
+    const quotes = await getQuotes()
 
+    const updatedQuotes = quotes.map(quote => quote.id === updatedQuote.id ? updatedQuote : quote)
+
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedQuotes))
 }
 
-export function filterQuotes(quotes: QuoteDocTypes[]) {}
+export async function deleteQuote(id: string) {
+    const quotes = await getQuotes()
 
-export function newService(item: ItemTypes) {
+    const updatedQuotes = quotes.filter(quote => quote.id !== id )
 
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedQuotes))
 }
 
-export function duplicateQuote(quote: QuoteDocTypes) {}
+export async function duplicateQuote(quote: QuoteDocTypes) {
+    const quotes = await getQuotes()
+
+    const copy = {...quote, id: String(Date.now()), createdAt: String(new Date())}
+
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([...quotes, copy]))
+}
+
+function getQuoteTotal(quote: QuoteDocTypes) {
+        const subtotal = quote.items.reduce(
+            (total, item) => total + item.price * item.qty,
+            0
+        )
+
+        return subtotal * (1 - (quote.discountPct ?? 0) / 100)
+    }
+
+export async function filterQuotes(quotes: QuoteDocTypes[], filters: FilterOptions) {
+    let result = [...quotes]
+
+    if(filters.status) {
+        result = result.filter(
+            quote => quote.status === filters.status
+        )
+    }
+
+    if (filters.orderBy === 'price') {
+        result.sort((a, b) => filters.order === 'asc' 
+        ? getQuoteTotal(a) - getQuoteTotal(b)
+        : getQuoteTotal(b) - getQuoteTotal(a))
+    }
+
+    if(filters.orderBy === 'date') {
+        result.sort((a, b) => {
+        const dateA = a.createdAt
+            ? new Date(a.createdAt).getTime()
+            : 0
+
+        const dateB = b.createdAt
+            ? new Date(b.createdAt).getTime()
+            : 0
+
+        return filters.order === 'asc'
+            ? dateA - dateB
+            : dateB - dateA
+    })
+    }
+
+    return result
+}

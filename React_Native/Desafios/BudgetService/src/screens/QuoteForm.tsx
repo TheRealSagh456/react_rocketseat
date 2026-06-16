@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import { Button, Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native";
+import { Alert, Button, Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native";
 import { styles } from "./styles";
 import BudgetCards from "@/components/BudgetCards";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -9,23 +9,38 @@ import React from "react";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Input, InputTypes } from "@/components/Input";
 import { TouchableOpacity } from "react-native";
-import { ItemTypes } from "@/types";
-import { FlatList } from "react-native";
+import { ItemTypes, QuoteDocTypes, StatusTypes } from "@/types";
+import { newQuote } from "@/storage";
 
 export default function QuoteForm() {
     const navigation = useNavigation()
 
-    const [budgetTitle, setBudgetTitle] = React.useState('')
-    const [budgetClient, setBudgetClient] = React.useState('')
-    const [selectedRadio, setSelectedRadio] = React.useState('')
+    const [quoteForm, setQuoteForm] = React.useState<QuoteDocTypes>({
+        id: '',
+        title: '',
+        client: '',
+        status: StatusTypes.Rascunho,
+        items: [],
+        discountPct: 0,
+        createdAt: '',
+        updatedAt: ''
+    })
+    const [selectedStatus, setSelectedStatus] = React.useState('')
     const [services, setServices] = React.useState<ItemTypes[]>([])
 
     const [addService, setAddService] = React.useState(false)
-    const [serviceTitle, setServiceTitle] = React.useState('')
-    const [serviceDescription, setServiceDescription] = React.useState('')
-    const [servicePrice, setServicePrice] = React.useState(0)
-    const [ServiceQty, setServiceQty] = React.useState(1)
+
+    const [serviceForm, setServiceForm] = React.useState<ItemTypes>({
+        id: '',
+        title: '',
+        description: '',
+        price: 0,
+        qty: 1
+    })
+
     const [discount, setDiscount] = React.useState(0)
+    const [idsUsados, setIdsUsados] = React.useState(new Set());
+
 
     const insets = useSafeAreaInsets()
 
@@ -37,9 +52,64 @@ export default function QuoteForm() {
         return services.length
     }, [services])
 
-    function handleSubmit() {
-
+    function resetServiceForm() {
+        setServiceForm({
+            id: '',
+            title: '',
+            description: '',
+            price: 0,
+            qty: 1,
+        })
     }
+
+    function resetQuoteForm() {
+        setQuoteForm({
+        id: '',
+        title: '',
+        client: '',
+        status: StatusTypes.Rascunho,
+        items: [],
+        discountPct: 0,
+        createdAt: '',
+        updatedAt: ''
+        })
+    }
+
+    function handleEditService(item: ItemTypes) {
+        setAddService(true)
+
+        setServiceForm({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            price: item.price,
+            qty: item.qty
+        })
+    }
+
+    
+    function useGeradorIdNumerico() {
+    
+      const obterNovoIdAleatorio = () => {
+    
+        let numeroAleatorio;
+        let idString;
+    
+        do {
+          numeroAleatorio = Math.floor(Math.random() * 67000) + 1;
+          idString = numeroAleatorio.toString();
+        } while (idsUsados.has(idString));
+    
+        idsUsados.add(idString);
+        setIdsUsados(new Set(idsUsados));
+    
+        return idString;
+      };
+    
+      return { obterNovoIdAleatorio };
+    }
+
+    const { obterNovoIdAleatorio } = useGeradorIdNumerico() 
 
     return (
         <>
@@ -52,7 +122,7 @@ export default function QuoteForm() {
                                 variant={InputTypes.text} 
                                 placeholder='Título'
                                 placeholderTextColor="gray"
-                                onChangeText={setBudgetTitle}
+                                onChangeText={e => setQuoteForm(prev => ({...prev, title: e}))}
                             />
                             </View>
                             <View style={{paddingHorizontal: 20}}>
@@ -60,7 +130,7 @@ export default function QuoteForm() {
                                 variant={InputTypes.text} 
                                 placeholder='Cliente'
                                 placeholderTextColor="gray"
-                                onChangeText={setBudgetClient}
+                                onChangeText={e => setQuoteForm(prev => ({...prev, client: e}))}
                             />
                             </View>
                         </BudgetCards>
@@ -75,8 +145,14 @@ export default function QuoteForm() {
                                         gap: 7
                                     }}>
                                         <RadioButton 
-                                        onPress={() => setSelectedRadio('Rascunho')}
-                                        selected={selectedRadio === 'Rascunho'}
+                                        onPress={() => {
+                                            setSelectedStatus('Rascunho')
+                                            setQuoteForm(prev => ({
+                                                ...prev,
+                                                status: StatusTypes.Rascunho
+                                            }))
+                                        }}
+                                        selected={selectedStatus === 'Rascunho'}
                                         />
                                         <Status status="Rascunho"/>
                                     </View>
@@ -85,8 +161,14 @@ export default function QuoteForm() {
                                         gap: 7
                                     }}>
                                         <RadioButton 
-                                        onPress={() => setSelectedRadio('Aprovado')}
-                                        selected={selectedRadio === 'Aprovado'}
+                                        onPress={() => {
+                                            setSelectedStatus('Aprovado')
+                                            setQuoteForm(prev => ({
+                                                ...prev,
+                                                status: StatusTypes.Aprovado
+                                            }))
+                                        }}
+                                        selected={selectedStatus === 'Aprovado'}
                                         />
                                         <Status status="Aprovado"/>
                                     </View>
@@ -102,8 +184,14 @@ export default function QuoteForm() {
                                         gap: 7
                                     }}>
                                         <RadioButton 
-                                        onPress={() => setSelectedRadio('Enviado')}
-                                        selected={selectedRadio === 'Enviado'}
+                                        onPress={() => {
+                                            setSelectedStatus('Enviado')
+                                            setQuoteForm(prev => ({
+                                                ...prev,
+                                                status: StatusTypes.Enviado
+                                            }))
+                                        }}
+                                        selected={selectedStatus === 'Enviado'}
                                         />
                                         <Status status="Enviado"/>    
                                     </View>
@@ -113,8 +201,14 @@ export default function QuoteForm() {
                                         gap: 7
                                     }}>
                                         <RadioButton 
-                                        onPress={() => setSelectedRadio('Recusado')}
-                                        selected={selectedRadio === 'Recusado'}/>
+                                        onPress={() => {
+                                            setSelectedStatus('Recusado')
+                                            setQuoteForm(prev => ({
+                                                ...prev,
+                                                status: StatusTypes.Recusado
+                                            }))
+                                        }}
+                                        selected={selectedStatus === 'Recusado'}/>
                                         <Status status="Recusado"/>    
                                     </View>
                                 </View>
@@ -125,28 +219,47 @@ export default function QuoteForm() {
 
                         <BudgetCards title="Serviços inclusos" icon={"receipt-long"}> 
 
-                            
-                            <FlatList
-                            style={{paddingHorizontal: 20, backgroundColor: '#A1A2A1', marginHorizontal: 20}}
-                            data={services}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({item}) => (
-                                <>
-                                    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
-                                        <View style={{flexDirection: 'column', gap: 20}}>
-                                            <Text>{item.title}</Text>
-                                            <Text>{item.description}</Text>
+                            <View>
+                                {services.map((item) => (
+                                    <View key={item.id} style={{
+                                        flexDirection: 'row', 
+                                        alignItems: 'center',
+                                        paddingHorizontal: 20,
+                                        paddingVertical: 12,
+                                        }}>
+                                        <View style={{flex: 1, paddingRight: 10}}>
+                                            <Text 
+                                            style={{fontSize: 16, fontWeight: 600}} 
+                                            numberOfLines={1}>{item.title}</Text>
+                                            <Text 
+                                            style={{color: '#8E8E93', fontSize: 13}} 
+                                            numberOfLines={1}>{item.description}</Text>
                                         </View>
-                                        <View style={{flexDirection: 'column', gap: 20}}>
-                                            <Text>{item.price}</Text>
-                                            <Text>{item.qty}</Text>
+                                        <View style={{alignItems: "flex-end", width: "auto"}}>
+                                                <Text style={{fontSize: 14}}>R$ {''}
+                                                    <Text style={{fontSize: 18, fontWeight: 700}}>
+                                                    {(item.price).toLocaleString('pt-BR', {
+                                                        maximumFractionDigits: 2,
+                                                        minimumFractionDigits: 2
+                                                    })}
+                                                    </Text>
+                                                </Text>
+
+                                                <Text style={{color: '#8E8E93', fontSize: 12}}>
+                                                    Qt: {item.qty}
+                                                </Text>
+
+                                            
                                         </View>
-                                    
+                                        <TouchableOpacity 
+                                        style={{width: 26, alignItems:'flex-end'}}
+                                        onPress={() => handleEditService(item)}>
+                                            <MaterialIcons name="edit" size={20} color={'purple'}/>
+                                        </TouchableOpacity>
                                     </View>
-                                    <View style={styles.divider}/>
-                                </>
-                            )}
-                            />
+                                ))}
+                            </View>
+                            
                             <View style={{paddingHorizontal: 20}}>
                                 <Button title="+ Adicionar serviço" onPress={() => setAddService(true)}/>
                             </View>
@@ -184,6 +297,7 @@ export default function QuoteForm() {
                                                 <Input 
                                                     variant={InputTypes.percentage}
                                                     keyboardType="numeric"
+                                                    selectTextOnFocus
                                                     onChangeText={value => setDiscount(Number(value) || 0)}
                                                     value={String(discount)}
                                                 />
@@ -212,12 +326,23 @@ export default function QuoteForm() {
                                     </Text>
                                 
                                     <View>
-                                        <Text style={{marginLeft: 10, textDecorationLine: "line-through"}}>
-                                            {`R$ ${(subtotal.toFixed(2)).replace('.',',')}`}
+                                        {
+                                        subtotal > subtotal-subtotal*(discount/100) && <Text 
+                                            style={{marginLeft: 10, textDecorationLine: "line-through"}}
+                                        >
+                                            {`R$ ${(subtotal.toLocaleString(
+                                                "pt-BR", {
+                                                    maximumFractionDigits: 2,
+                                                    minimumFractionDigits: 2
+                                                }))}`}
                                         </Text>
-
+                                        }
                                         <Text style={{fontWeight: 700}}>
-                                            {`R$ ${((subtotal-subtotal*(discount/100)).toFixed(2)).replace('.',',')}`}
+                                            {`R$ ${((subtotal-subtotal*(discount/100)).toLocaleString(
+                                                "pt-BR", {
+                                                    maximumFractionDigits: 2,
+                                                    minimumFractionDigits: 2
+                                                }))}`}
                                         </Text>
                                     </View>
                                 </View>
@@ -226,8 +351,26 @@ export default function QuoteForm() {
                         
                     
                     <View style={{flexDirection: "row", gap: 15, justifyContent: 'center'}}>
-                        <Button title="apagar" onPress={() => navigation.goBack()}/>
-                        <Button title="Salvar" onPress={() => navigation.navigate("details")}/>
+                        <Button title="Cancelar" onPress={() => navigation.goBack()}/>
+                        <Button title="Salvar" onPress={() => {
+                            
+                            const Quote: QuoteDocTypes = {
+                                id: obterNovoIdAleatorio(),
+                                title: quoteForm.title,
+                                client: quoteForm.client,
+                                status: quoteForm.status,
+                                items: services,
+                                discountPct: discount,
+                                createdAt: new Date().toString(),
+                                updatedAt: new Date().toString()
+                            }
+
+                            newQuote(Quote)
+
+                            resetQuoteForm()
+
+                            navigation.navigate("home")
+                        }}/>
                     </View>
                 </View>
             </ScrollView>
@@ -262,13 +405,21 @@ export default function QuoteForm() {
                                     variant={InputTypes.text} 
                                     placeholder='Título'
                                     placeholderTextColor="gray"
-                                    onChangeText={setServiceTitle}
+                                    onChangeText={(title) => setServiceForm(prev => ({
+                                        ...prev,
+                                        title: title
+                                    }))}
+                                    value={serviceForm.title || ""}
                                 />
                                     <Input
                                     variant={InputTypes.text} 
                                     placeholder='Descrição'
                                     placeholderTextColor="gray"
-                                    onChangeText={setServiceDescription}
+                                    onChangeText={(description) => setServiceForm(prev => ({
+                                        ...prev,
+                                        description: description
+                                    }))}
+                                    value={serviceForm.description || ''}
                                 />
                                     <View style={{
                                         flexDirection: 'row',
@@ -276,6 +427,7 @@ export default function QuoteForm() {
                                     }}>
                                         <Input
                                             variant={InputTypes.money}
+                                            value={String(serviceForm.price)}
                                             containerStyle={{flex: 1}}
                                             onChangeText={value => {
                                                 const virgulaPonto = value.replace(',','.')
@@ -284,7 +436,9 @@ export default function QuoteForm() {
 
                                                 const parsedValue = Number(formattedServicePrice)
 
-                                                setServicePrice(parsedValue || 0)
+                                                setServiceForm(prev => ({
+                                                    ...prev,
+                                                    price: parsedValue || 0}))
                                             }}
                                         />
                                             <View 
@@ -303,13 +457,13 @@ export default function QuoteForm() {
                                                 }}
                                             >
                                                 <TouchableOpacity
-                                                onPress={() => {if(ServiceQty > 1) setServiceQty(ServiceQty-1)}}
+                                                onPress={() => {if(serviceForm.qty > 1) setServiceForm(prev => ({...prev, qty: serviceForm.qty-1}))}}
                                                 >
                                                     <MaterialIcons name="remove" size={25} color={'purple'}/>
                                                 </TouchableOpacity>
                                                 
                                                 <TextInput 
-                                                value={String(ServiceQty)}
+                                                value={String(serviceForm.qty)}
                                                 editable={false}
                                                 selectTextOnFocus={false}
                                                 style={{
@@ -321,7 +475,7 @@ export default function QuoteForm() {
                                                 />
 
                                                 <TouchableOpacity
-                                                onPress={() => setServiceQty(ServiceQty+1)}>
+                                                onPress={() => setServiceForm(prev => ({...prev, qty: serviceForm.qty+1}))}>
                                                     <MaterialIcons name="add" size={25} color={'purple'}/>
                                                 </TouchableOpacity>
                                             </View>
@@ -338,28 +492,88 @@ export default function QuoteForm() {
                                     paddingTop: 15,
                                     paddingBottom: insets.bottom
                                 }}>
-                                    <Button title="Lixo" onPress={() => setAddService(false)}/>
-                                    <Button title="Salvar" onPress={() => {
-                                        const newService: ItemTypes = {
-                                            id: String(Date.now()),
-                                            title: serviceTitle,
-                                            description: serviceDescription,
-                                            price: servicePrice,
-                                            qty: ServiceQty
+                                    <TouchableOpacity 
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            gap: 5,
+                                            paddingHorizontal: 10,
+                                            paddingVertical: 8,
+                                            borderRadius: 30,
+                                            borderColor: "#F0F0F0",
+                                            borderWidth: 2,
+                                            backgroundColor: '#FAFAFA',
+                                            
+                                        }}
+                                        onPress={() => {
+                                            
+                                            setServices(prev => prev.filter(service => service.id !== serviceForm.id))
+
+                                            setServiceForm(prev => ({...prev, id: ''}))
+                                            setAddService(false)
+                                            resetServiceForm()
+                                    }}> 
+                                        <MaterialIcons name="delete" size={24} color={'red'}/>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity 
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            gap: 5,
+                                            paddingHorizontal: 10,
+                                            paddingVertical: 8,
+                                            borderRadius: 20,
+                                            backgroundColor: 'purple',
+                                            
+                                        }}
+                                        onPress={() => {
+
+                                            if (
+                                                !serviceForm.title.trim() ||
+                                                !serviceForm.description.trim() ||
+                                                serviceForm.price <= 0 ||
+                                                serviceForm.qty <= 0
+                                            ) {
+                                                return Alert.alert("Campos obrigatórios", "Preencha-os corretamente.")
+                                            }
+
+                                            if(serviceForm.id) {
+                                                
+                                                setServices((prev) => 
+                                                    prev.map(service => service.id === serviceForm.id ? {
+                                                        ...service,
+                                                        title: serviceForm.title,
+                                                        description: serviceForm.description,
+                                                        price: serviceForm.price,
+                                                        qty: serviceForm.qty
+                                                    } : service
+                                                ))
+                                                
+                                            } else {
+                                            
+                                            const newService: ItemTypes = {
+                                                id: String(Date.now()),
+                                                title: serviceForm.title,
+                                                description: serviceForm.description,
+                                                price: serviceForm.price,
+                                                qty: serviceForm.qty
+                                            }
+                                                setServices(prev => [...prev, newService])
+                                            }
+
+                                            setAddService(false)
+
+                                            resetServiceForm()
+
+                                            Keyboard.dismiss()
+
+                                            console.log(services)
+                                            }
                                         }
-                                        setServices([...services, newService])
-
-                                        setAddService(false)
-
-                                        setServiceTitle('')
-                                        setServiceDescription('')
-                                        setServicePrice(0)
-                                        setServiceQty(1)
-
-                                        Keyboard.dismiss()
-
-                                        console.log(services)
-                                    }}/>
+                                    > 
+                                        <MaterialIcons name="check" size={24} color={'white'}/>
+                                        <Text style={{ color: 'white' }}>Salvar</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </SafeAreaView>
                         </KeyboardAvoidingView>

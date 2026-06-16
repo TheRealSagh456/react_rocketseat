@@ -20,11 +20,16 @@ export type QuoteDocTypes = {
     client: string,
     title: string,
     items: ItemTypes[]
-    discountPct?: number,
-    price: number
+    discountPct: number,
     status: StatusTypes,
-    createdAt?: string,
-    updatedAt?: string,
+    createdAt: string,
+    updatedAt: string,
+}
+
+export type FilterOptions = {
+    status?: StatusTypes
+    orderBy?: "date" | "price"
+    order?: "asc" | "desc"
 }
 
 export type RootStackParamList = {

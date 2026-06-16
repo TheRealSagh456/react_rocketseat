@@ -7,11 +7,10 @@ export const styles = StyleSheet.create({
         paddingBottom: 60,
         paddingTop: 20,
         paddingHorizontal: 20,
-        gap: 10
+        gap: 20
     },
     quoteList: {
         gap: 10,
-        paddingHorizontal: 10
     },
     divider: {
     height: 1,
