@@ -3,5 +3,8 @@
     "name": "budgetservice",
     "slug": "budgetservice",
     "version": "1.0.0"
-  }
+  },
+  "android": {
+  "softwareKeyboardLayoutMode": "resize"
+}
 }

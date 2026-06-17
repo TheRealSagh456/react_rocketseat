@@ -35,7 +35,7 @@ export type FilterOptions = {
 export type RootStackParamList = {
     home: undefined
     details: undefined | {id: string}
-    Orçamento: undefined
+    Orçamento: undefined | {id: string}
 }
 
 declare global {

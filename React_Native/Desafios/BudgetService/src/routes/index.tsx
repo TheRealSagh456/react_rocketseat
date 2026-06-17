@@ -11,12 +11,8 @@ export default function Routes() {
     return (
         <Stack.Navigator initialRouteName="home">
             <Stack.Screen name="home" component={Home} options={{headerShown: false}}/>
-            <Stack.Screen name="Orçamento" component={QuoteForm} options={{
-                headerLeft: () => <HeaderButtonToHome/>
-            }}/>
-            <Stack.Screen name="details" component={QuoteDetails} options={{
-                headerLeft: () => <HeaderButtonToHome/>,
-            }}/>
+            <Stack.Screen name="Orçamento" component={QuoteForm} options={{headerShown: false}}/>
+            <Stack.Screen name="details" component={QuoteDetails} options={{headerShown: false}}/>
         </Stack.Navigator>
     )
 }

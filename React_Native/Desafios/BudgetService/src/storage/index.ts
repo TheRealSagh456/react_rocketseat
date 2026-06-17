@@ -1,4 +1,4 @@
-import { FilterOptions, ItemTypes, QuoteDocTypes } from "@/types";
+import { FilterOptions, ItemTypes, QuoteDocTypes, StatusTypes } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STORAGE_KEY = "@quotes"
@@ -17,6 +17,14 @@ export async function getQuoteById(id: string) {
     const quotes = await getQuotes()
 
     return quotes.find(quote => quote.id === id)
+}
+
+export async function getQuoteByStatus(status: StatusTypes): Promise<Number> {
+    const quotes = await getQuotes()
+
+    const quotesWithStatus = quotes.filter((item) => item.status === status).length
+
+    return quotesWithStatus
 }
 
 export async function newQuote(quote: QuoteDocTypes) {
@@ -44,7 +52,20 @@ export async function deleteQuote(id: string) {
 export async function duplicateQuote(quote: QuoteDocTypes) {
     const quotes = await getQuotes()
 
-    const copy = {...quote, id: String(Date.now()), createdAt: String(new Date())}
+    console.log("Original", quote.id)
+
+    const copy: QuoteDocTypes = {
+        ...quote, 
+        id: String(Date.now()), 
+        createdAt: String(new Date()),
+        updatedAt: String(new Date()),
+        items: quote.items.map(item => ({
+            ...item,
+            id: String(`${Date.now()} - ${Math.random()}`)
+        }))
+    }
+
+    console.log("Copia", copy.id)
 
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([...quotes, copy]))
 }

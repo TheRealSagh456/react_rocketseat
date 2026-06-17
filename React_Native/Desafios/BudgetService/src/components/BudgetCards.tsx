@@ -18,7 +18,8 @@ export default function BudgetCards({icon, title, children, total}: Props) {
             borderRadius: 8,
             flexDirection: "column",
             gap: 4,
-            paddingVertical: 15
+            paddingVertical: 15,
+            borderColor: '#E6E5E5',
         }}>
             <View style={
                 total ? {
@@ -38,7 +39,7 @@ export default function BudgetCards({icon, title, children, total}: Props) {
                 {icon 
                 ? 
                 <>
-                    <MaterialIcons name={icon} size={24} color={'purple'}/>
+                    <MaterialIcons name={icon} size={24} color={'#6A46EB'}/>
                     <Text style={{color: 'gray'}}>{title}</Text>
                 </>
                 : 

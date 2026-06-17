@@ -22,9 +22,10 @@ export function Input({variant, icon, containerStyle, ...props} : Props) {
         <View 
         style={[{
             flexDirection: 'row',
-            alignItems: 'center',
+            alignItems: props.multiline ? 'flex-start' : 'center',
             borderWidth: 1,
             borderRadius: 25,
+            borderColor: '#E6E5E5',
             paddingHorizontal: 12,
             backgroundColor: '#FAFAFA',
         }, containerStyle]}>
@@ -33,19 +34,19 @@ export function Input({variant, icon, containerStyle, ...props} : Props) {
                 <>
                     <MaterialIcons name={icon} size={25} color={'gray'}/>
                     <TextInput 
-                        placeholderTextColor="gray"
+                        placeholderTextColor="#A1A2A1"
                         style={{
-                            flex: 1,
                             paddingVertical: 12,
                             paddingHorizontal: 8,
-                            color: 'black'
+                            color: 'black',
+                            textAlignVertical: props.multiline ? "top" : "center"
                         }}
                         {...props}
                     />
                 </>
                 : 
                 <TextInput 
-                    placeholderTextColor="gray"
+                    placeholderTextColor="#A1A2A1"
                     style={{
                         flex: 1,
                             paddingVertical: 12,
@@ -59,9 +60,9 @@ export function Input({variant, icon, containerStyle, ...props} : Props) {
             {variant === InputTypes.money && (
                 icon ? 
                 <>
-                    <MaterialIcons name={icon} size={25} color={'gray'}/>
+                    <MaterialIcons name={icon} size={25} color={'#A1A2A1'}/>
                     <TextInput 
-                        placeholderTextColor="gray"
+                        placeholderTextColor="#A1A2A1"
                         style={{
                             flex: 1,
                             paddingVertical: 12,
