@@ -104,7 +104,7 @@ export default function QuoteForm() {
 
     return (
         <>
-            <QuoteHeader id={route.params?.id}/>
+            <QuoteHeader id={route.params?.id} quote={quote!}/>
             <View style={styles.divider}/>
             <ScrollView style={{backgroundColor: 'white'}}>
                 <ViewShot ref={viewShotRef} options={{ format: "png", quality: 0.9 }}>
