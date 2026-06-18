@@ -9,19 +9,28 @@ import React from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Button } from '@/components/Button';
 import { MaterialIcons } from '@expo/vector-icons';
+import { RefreshControl } from 'react-native-gesture-handler';
 
 export default function Home() {
   const [quotes, setQuotes] = React.useState<QuoteDocTypes[]>([])
+  const [atualizando, setAtualizando] = React.useState(false)
 
   const navigation = useNavigation()
   
   async function loadQuotes() {
+    try {
       const data = await getQuotes()
-
-      console.log(JSON.stringify(quotes, null, 2))
-
-      setQuotes(data)  
+      setQuotes(data)
+    } catch(err) {
+      console.error("Erro ao carregar quotes", err)
     }
+  }
+
+  const aoAtualizar = React.useCallback(async () => {
+    setAtualizando(true)
+    await loadQuotes()
+    setAtualizando(false)
+  }, [])
 
   useFocusEffect(
     React.useCallback(() => {
@@ -29,6 +38,7 @@ export default function Home() {
 
     return () => {}
   }, []))
+
 
   return (
     <>
@@ -60,6 +70,14 @@ export default function Home() {
             </View>
           :
         <FlatList
+          refreshControl={
+            <RefreshControl 
+              refreshing={atualizando} 
+              onRefresh={aoAtualizar}  
+              colors={['#6A46EB', '#DFDAF2']} 
+              tintColor={"#DFDAF2"}
+            />
+          }
           contentContainerStyle={styles.quoteList}
           data={quotes}
           keyExtractor={(item) => item.id}

@@ -8,7 +8,7 @@ type Props = {
 }
 
 export default function Quote({quote}: Props) {
-    const formattedPrice = quote.items.reduce((tt, item) => tt + (item.price ?? 0), 0)
+    const formattedPrice = quote.items.reduce((tt, item) => tt + ((item.price ?? 0)*item.qty), 0)
 
     return (
         <View style={styles.quoteContainer}>

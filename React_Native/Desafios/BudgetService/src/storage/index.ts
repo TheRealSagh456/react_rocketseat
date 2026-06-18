@@ -1,4 +1,4 @@
-import { FilterOptions, ItemTypes, QuoteDocTypes, StatusTypes } from "@/types";
+import { FilterOptions, QuoteDocTypes, StatusTypes } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STORAGE_KEY = "@quotes"
