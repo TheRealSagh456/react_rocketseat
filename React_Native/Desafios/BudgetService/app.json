@@ -1,11 +1,16 @@
 {
   "expo": {
-    "name": "budgetservice",
+    "name": "BudgetService",
     "slug": "budgetservice",
     "version": "1.0.0",
     "plugins": [
       "expo-sharing"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5df3635d-f9a7-488d-b3de-350ae7770ddb"
+      }
+    }
   },
   "android": {
     "softwareKeyboardLayoutMode": "resize"

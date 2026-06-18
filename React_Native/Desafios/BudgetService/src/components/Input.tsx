@@ -39,7 +39,8 @@ export function Input({variant, icon, containerStyle, ...props} : Props) {
                             paddingVertical: 12,
                             paddingHorizontal: 8,
                             color: 'black',
-                            textAlignVertical: props.multiline ? "top" : "center"
+                            textAlignVertical: props.multiline ? "top" : "center",
+                            flex: 1
                         }}
                         {...props}
                     />

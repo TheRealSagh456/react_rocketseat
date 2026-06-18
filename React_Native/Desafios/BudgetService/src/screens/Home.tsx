@@ -19,6 +19,7 @@ export default function Home() {
   const [allQuotes, setAllQuotes] = React.useState<QuoteDocTypes[]>([])
   const [atualizando, setAtualizando] = React.useState(false)
   const [filtrando, setFiltrando] = React.useState(false)
+  const [search, setSearch] = React.useState('')
   const [filter, setFilter] = React.useState<FilterOptions>({
     status: [],
     orderBy: undefined,
@@ -66,6 +67,11 @@ export default function Home() {
     return () => {}
   }, []))
 
+  const filteredQuotes = React.useMemo(() => {
+    return allQuotes.filter(quote => quote.title.toLowerCase().includes(search.toLowerCase()) || 
+    quote.client.toLowerCase().includes(search.toLowerCase()))
+  }, [allQuotes, search])
+
 
   return (
     <View style={{flex: 1}}>
@@ -79,7 +85,7 @@ export default function Home() {
 
         <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", gap: 1}}>
           <View style={{flex: 1}}>
-            <Input variant={InputTypes.text} icon='search'/> 
+            <Input variant={InputTypes.text} icon='search' value={search} placeholder='Título ou Cliente' onChangeText={setSearch}/> 
           </View>
             <Button variant='gray' style={{padding: 10}} onPress={() => setFiltrando(true)}>
                 <MaterialIcons name='tune' color={"#6A46EB"} size={20} style={{padding: 2}}/>
@@ -106,7 +112,7 @@ export default function Home() {
             />
           }
           contentContainerStyle={styles.quoteList}
-          data={quotes}
+          data={filteredQuotes}
           keyExtractor={(item) => item.id}
           renderItem={({item}) => (
             <TouchableOpacity activeOpacity={0.5} onPress={() => {
