@@ -39,6 +39,7 @@ export default function QuoteForm() {
         price: 0,
         qty: 1
     })
+    const [servicePriceDisplay, setServicePriceDisplay] = React.useState<string>('')
 
     const [discount, setDiscount] = React.useState(0)
     const [idsUsados, setIdsUsados] = React.useState(new Set());
@@ -62,6 +63,7 @@ export default function QuoteForm() {
             price: 0,
             qty: 1,
         })
+        setServicePriceDisplay('')
         Keyboard.dismiss()
     }
 
@@ -88,6 +90,12 @@ export default function QuoteForm() {
             price: item.price,
             qty: item.qty
         })
+
+        setServicePriceDisplay(
+            item.price
+                ? item.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                : ''
+        )
     }
 
     
@@ -152,6 +160,16 @@ export default function QuoteForm() {
         })
         return () => { show.remove(); hide.remove() }
     }, [])
+    
+    React.useEffect(() => {
+        if (serviceForm.price && serviceForm.price > 0) {
+            setServicePriceDisplay(
+                serviceForm.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            )
+        } else {
+            setServicePriceDisplay('')
+        }
+    }, [serviceForm.id])
 
     return (
         <>
@@ -521,13 +539,23 @@ export default function QuoteForm() {
                                 <View style={{ flexDirection: 'row', gap: 20 }}>
                                     <Input
                                         variant={InputTypes.money}
-                                        value={String(serviceForm.price)}
+                                        value={servicePriceDisplay}
                                         containerStyle={{ flex: 1 }}
-                                        onChangeText={value => {
-                                            const virgulaPonto = value.replace(',', '.')
-                                            const formattedServicePrice = virgulaPonto.replace(/[^0-9.]/g, '')
-                                            const parsedValue = Number(formattedServicePrice)
-                                            setServiceForm(prev => ({ ...prev, price: parsedValue || 0 }))
+                                        onChangeText={(text) => {
+                                            const normalized = text.replace(/\./g, '').replace(',', '.')
+                                            const cleaned = normalized.replace(/[^0-9.]/g, '')
+                                            const parts = cleaned.split('.')
+                                            const cleanedSingleDot = parts.length <= 1 ? cleaned : parts[0] + '.' + parts.slice(1).join('')
+                                            const parsed = Number(cleanedSingleDot)
+                                            setServiceForm(prev => ({ ...prev, price: isNaN(parsed) ? 0 : parsed }))
+                                            setServicePriceDisplay(text)
+                                        }}
+                                        onEndEditing={() => {
+                                           setServicePriceDisplay(
+                                            serviceForm.price
+                                                ? serviceForm.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                                : ''
+                                        ) 
                                         }}
                                     />
                                     <View style={{

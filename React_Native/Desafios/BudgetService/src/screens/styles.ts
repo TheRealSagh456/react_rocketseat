@@ -17,4 +17,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#E6E5E5', 
     width: '100%',
   },
+  filterItems: {
+    flexDirection: 'row', 
+    gap: 10
+  }
 })

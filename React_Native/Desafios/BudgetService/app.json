@@ -2,9 +2,12 @@
   "expo": {
     "name": "budgetservice",
     "slug": "budgetservice",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "plugins": [
+      "expo-sharing"
+    ]
   },
   "android": {
-  "softwareKeyboardLayoutMode": "resize"
-}
+    "softwareKeyboardLayoutMode": "resize"
+  }
 }

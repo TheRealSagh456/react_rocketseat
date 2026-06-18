@@ -27,7 +27,7 @@ export type QuoteDocTypes = {
 }
 
 export type FilterOptions = {
-    status?: StatusTypes
+    status?: StatusTypes[]
     orderBy?: "date" | "price"
     order?: "asc" | "desc"
 }

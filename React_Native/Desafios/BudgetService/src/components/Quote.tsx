@@ -8,7 +8,8 @@ type Props = {
 }
 
 export default function Quote({quote}: Props) {
-    const formattedPrice = quote.items.reduce((tt, item) => tt + ((item.price ?? 0)*item.qty), 0)
+    const subtotal = quote.items.reduce((tt, item) => tt + ((item.price ?? 0)*item.qty), 0)
+    const total = subtotal * (1 - quote.discountPct/100)
 
     return (
         <View style={styles.quoteContainer}>
@@ -30,7 +31,7 @@ export default function Quote({quote}: Props) {
                 <View style={{flexDirection: 'row', marginTop: 8, gap: 5, alignItems: 'baseline'}}>
                     <Text style={{fontSize: 12}}>R$</Text>
                     <Text style={{fontSize: 17, fontWeight: 700}}>
-                        {`${formattedPrice.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
+                        {`${(total).toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
                     </Text>
                 </View>
             </View>
