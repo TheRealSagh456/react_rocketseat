@@ -82,11 +82,11 @@ function getQuoteTotal(quote: QuoteDocTypes) {
 export async function filterQuotes(quotes: QuoteDocTypes[], filters: FilterOptions) {
     let result = [...quotes]
 
-    if(filters.status && filters.status.length > 0) {
-        const statuses: StatusTypes[] = Array.isArray(filters.status)
-        ? filters.status
-        : [filters.status]
-        
+    const statuses: StatusTypes[] = filters.status === undefined
+    ? []
+    : Array.isArray(filters.status) ? filters.status : [filters.status]
+
+    if(statuses.length > 0) {
         result = result.filter(
             quote => statuses.includes(quote.status)
         )

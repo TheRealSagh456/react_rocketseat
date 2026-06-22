@@ -68,9 +68,12 @@ export default function Home() {
   }, []))
 
   const filteredQuotes = React.useMemo(() => {
-    return allQuotes.filter(quote => quote.title.toLowerCase().includes(search.toLowerCase()) || 
+    const base = quotes.length > 0 ? quotes : allQuotes
+    const q = search.trim().toLocaleLowerCase()
+    if(!q) return base
+    return base.filter(quote => quote.title.toLowerCase().includes(search.toLowerCase()) || 
     quote.client.toLowerCase().includes(search.toLowerCase()))
-  }, [allQuotes, search])
+  }, [allQuotes, search, quotes])
 
 
   return (
@@ -248,11 +251,13 @@ export default function Home() {
                             <View style={{flexDirection: 'row', justifyContent: 'center', paddingVertical: 20, gap: 15}}>
                               <View>
                                     <Button variant='gray'
-                                    onPress={() => setFilter({
-                                      status: undefined,
+                                    onPress={() => {setFilter({
+                                      status: [],
                                       order: undefined,
                                       orderBy: undefined
-                                    })}>
+                                    })
+                                    setQuotes(allQuotes)
+                                    }}>
                                       <Text style={{color: "#6A46EB", fontWeight: 600, padding: 4}}>Resetar filtros</Text>  
                                     </Button>
                               </View>
@@ -263,8 +268,9 @@ export default function Home() {
                                     ...filter,
                                     status: filter.status && filter.status.length > 0 ? filter.status : undefined
                                   }
-                                  const filteredQuotes = await filterQuotes(allQuotes, effectiveFilter)
-                                  setQuotes(filteredQuotes)
+
+                                  const filtered = await filterQuotes(allQuotes, effectiveFilter)
+                                  setQuotes(filtered)
                                   setFiltrando(false)
                                 }}>
                                   <MaterialIcons name='check' size={20} color={'white'}/>
